@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
   // Get members with host details
   const { data: members } = await supabase
     .from("org_members")
-    .select("id, role, joined_at, host_id, hosts(id, name, email, avatar_url)")
+    .select("id, role, joined_at, host_id, hosts!org_members_host_id_fkey(id, name, email, avatar_url)")
     .eq("organization_id", orgId)
     .order("joined_at", { ascending: true });
 
