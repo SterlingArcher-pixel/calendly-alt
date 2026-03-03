@@ -221,9 +221,9 @@ export default function MeetingTypesPage() {
 
               <div className="mt-3 flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
                 <code className="flex-1 truncate text-xs text-gray-600">
-                  localhost:3000/{emailPrefix}/{mt.slug}
+                  {window.location.host}/{emailPrefix}/{mt.slug}
                 </code>
-                <CopyLink url={`http://localhost:3000/${emailPrefix}/${mt.slug}`} />
+                <CopyLink url={`${window.location.origin}/${emailPrefix}/${mt.slug}`} />
               </div>
             </div>
           ))}
