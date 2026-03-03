@@ -137,6 +137,7 @@ export default async function DashboardOverview() {
                   </div>
                   <div className="flex items-center gap-2">
                     {b.google_meet_link && (
+                      <a
                       
                         href={b.google_meet_link}
                         target="_blank"
