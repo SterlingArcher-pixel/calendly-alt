@@ -35,7 +35,7 @@ export default function TeamBookingsPage() {
     load();
   }, [view]);
 
-  const canViewTeam = role === "admin" || role === "recruiter";
+  // Toggle always visible for demo
 
   return (
     <div className="mx-auto max-w-4xl p-6">
@@ -46,7 +46,7 @@ export default function TeamBookingsPage() {
             {view === "team" ? "All upcoming interviews across your team" : "Your upcoming interviews"}
           </p>
         </div>
-        {canViewTeam && (
+        {(
           <div className="flex rounded-lg border bg-white p-1">
             <button
               onClick={() => setView("mine")}
