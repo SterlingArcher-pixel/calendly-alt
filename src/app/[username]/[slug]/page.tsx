@@ -1,4 +1,5 @@
 "use client";
+import { generateICS, downloadICS } from "@/lib/ics";
 
 import { createClient } from "@/lib/supabase/client";
 import { useParams } from "next/navigation";
@@ -51,6 +52,24 @@ export default function BookingPage() {
   useEffect(() => {
     setGuestTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
   }, []);
+
+  const handleDownloadICS = () => {
+    if (!meetingType || !host || !selectedDate || !selectedTime) return;
+    const startDate = new Date(selectedDate + "T" + selectedTime + ":00");
+    const endDate = new Date(startDate.getTime() + meetingType.duration_minutes * 60000);
+    const ics = generateICS({
+      title: meetingType.title + " with " + host.name,
+      description: "Booked via CalendlyAlt" + (meetLink ? "\nGoogle Meet: " + meetLink : ""),
+      startTime: startDate.toISOString(),
+      endTime: endDate.toISOString(),
+      location: meetLink || undefined,
+      organizerName: host.name,
+      organizerEmail: host.email || undefined,
+      attendeeName: guestName,
+      attendeeEmail: guestEmail,
+    });
+    downloadICS(ics, meetingType.title.replace(/\s+/g, "-").toLowerCase() + ".ics");
+  };
 
   // Load host + meeting type
   useEffect(() => {

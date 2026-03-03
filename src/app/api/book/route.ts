@@ -97,6 +97,28 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to create booking" }, { status: 500 });
   }
 
+  // Send confirmation email (fire and forget)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://calendly-alt.vercel.app";
+  fetch(siteUrl + "/api/send-confirmation", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      guest_name: guest_name,
+      guest_email: guest_email,
+      host_name: host.name,
+      meeting_title: meetingType.title,
+      meeting_date: new Date(startsAt).toLocaleDateString("en-US", {
+        weekday: "long", month: "long", day: "numeric", year: "numeric"
+      }),
+      meeting_time: new Date(startsAt).toLocaleTimeString("en-US", {
+        hour: "numeric", minute: "2-digit"
+      }),
+      duration_minutes: meetingType.duration_minutes,
+      meet_link: googleMeetLink,
+      booking_id: booking.id,
+    }),
+  }).catch((e) => console.error("Email send failed:", e));
+
   return NextResponse.json({
     booking,
     booking_id: booking.id,

@@ -1,4 +1,5 @@
 "use client";
+import { generateICS, downloadICS } from "@/lib/ics";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -48,6 +49,22 @@ export default function BookingManagePage() {
 
   // Calendar state
   const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  const handleDownloadICS = () => {
+    if (!booking) return;
+    const ics = generateICS({
+      title: booking.meeting_types.title + " with " + booking.hosts.name,
+      description: "Booked via CalendlyAlt" + (booking.google_meet_link ? "\nGoogle Meet: " + booking.google_meet_link : ""),
+      startTime: booking.starts_at,
+      endTime: booking.ends_at,
+      location: booking.google_meet_link || undefined,
+      organizerName: booking.hosts.name,
+      organizerEmail: booking.hosts.email,
+      attendeeName: booking.guest_name,
+      attendeeEmail: booking.guest_email,
+    });
+    downloadICS(ics, booking.meeting_types.title.replace(/\s+/g, "-").toLowerCase() + ".ics");
+  };
 
   useEffect(() => {
     fetchBooking();
