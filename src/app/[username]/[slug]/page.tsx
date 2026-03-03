@@ -59,7 +59,7 @@ export default function BookingPage() {
     const endDate = new Date(startDate.getTime() + meetingType.duration_minutes * 60000);
     const ics = generateICS({
       title: meetingType.title + " with " + host.name,
-      description: "Booked via CalendlyAlt" + (meetLink ? "\nGoogle Meet: " + meetLink : ""),
+      description: "Booked via Scheduling Tool" + (meetLink ? "\nGoogle Meet: " + meetLink : ""),
       startTime: startDate.toISOString(),
       endTime: endDate.toISOString(),
       location: meetLink || undefined,
@@ -580,7 +580,7 @@ export default function BookingPage() {
           {guestTimezone && (
             <span>Times shown in {guestTimezone.replace(/_/g, " ")} &middot; </span>
           )}
-          Powered by CalendlyAlt
+          Powered by Scheduling Tool
         </div>
       </div>
     </div>

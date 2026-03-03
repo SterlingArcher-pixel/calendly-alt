@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         Authorization: "Bearer " + RESEND_API_KEY,
       },
       body: JSON.stringify({
-        from: "CalendlyAlt <onboarding@resend.dev>",
+        from: "Scheduling Tool <onboarding@resend.dev>",
         to: [guest_email],
         subject: "Confirmed: " + meeting_title + " with " + host_name,
         html: htmlBody,

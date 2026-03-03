@@ -54,7 +54,7 @@ export default function BookingManagePage() {
     if (!booking) return;
     const ics = generateICS({
       title: booking.meeting_types.title + " with " + booking.hosts.name,
-      description: "Booked via CalendlyAlt" + (booking.google_meet_link ? "\nGoogle Meet: " + booking.google_meet_link : ""),
+      description: "Booked via Scheduling Tool" + (booking.google_meet_link ? "\nGoogle Meet: " + booking.google_meet_link : ""),
       startTime: booking.starts_at,
       endTime: booking.ends_at,
       location: booking.google_meet_link || undefined,
@@ -188,7 +188,7 @@ export default function BookingManagePage() {
         {/* Header */}
         <div className="mb-6 text-center">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-            <span className="text-lg font-bold text-blue-600">CA</span>
+            <span className="text-lg font-bold text-blue-600">ST</span>
           </div>
           <h1 className="text-xl font-bold text-gray-900">Manage Your Booking</h1>
         </div>
@@ -303,7 +303,7 @@ export default function BookingManagePage() {
         </div>
 
         {/* Footer */}
-        <p className="mt-4 text-center text-xs text-gray-400">Powered by CalendlyAlt</p>
+        <p className="mt-4 text-center text-xs text-gray-400">Powered by Scheduling Tool</p>
 
         {/* Cancel confirmation modal */}
         {showCancelConfirm && (

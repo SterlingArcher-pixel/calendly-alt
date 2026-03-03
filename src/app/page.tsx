@@ -27,7 +27,7 @@ export default function Home() {
             CA
           </div>
           <h1 className="mt-6 text-3xl font-bold tracking-tight">
-            CalendlyAlt
+            Scheduling Tool
           </h1>
           <p className="mt-2 text-gray-500">
             Simple meeting scheduling, powered by your Google Calendar.

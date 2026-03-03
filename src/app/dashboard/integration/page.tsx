@@ -49,7 +49,7 @@ export default function IntegrationPage() {
             { label: "Auto-Screen", icon: "🔍", sub: "Pre-screen questions filter" },
             { label: "Status → Interviewing", icon: "📊", sub: "Apploi Partner API trigger" },
             { label: "Send Scheduling Link", icon: "📱", sub: "SMS + Email via automation" },
-            { label: "Self-Book Interview", icon: "📅", sub: "CalendlyAlt booking page" },
+            { label: "Self-Book Interview", icon: "📅", sub: "Scheduling Tool booking page" },
             { label: "Calendar + Meet Created", icon: "✅", sub: "Google Calendar event" },
           ].map((step, i) => (
             <div key={i} className="flex flex-1 flex-col items-center text-center">

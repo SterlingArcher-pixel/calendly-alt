@@ -24,12 +24,12 @@ export function generateICS({
     return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
   };
 
-  const uid = crypto.randomUUID() + "@calendlyalt";
+  const uid = crypto.randomUUID() + "@scheduling-tool";
   const now = formatDate(new Date().toISOString());
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//CalendlyAlt//EN",
+    "PRODID:-//Scheduling Tool//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:REQUEST",
     "BEGIN:VEVENT",

@@ -61,7 +61,7 @@ export default function Sidebar({ host }: { host: any }) {
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">
           CA
         </div>
-        <span className="text-lg font-semibold text-gray-900">CalendlyAlt</span>
+        <span className="text-lg font-semibold text-gray-900">Scheduling Tool</span>
       </div>
 
       {/* Nav */}
