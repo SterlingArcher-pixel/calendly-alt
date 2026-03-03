@@ -109,5 +109,4 @@ export default function Sidebar({ host }: { host: any }) {
         </div>
       </div>
     </aside>
-  );
-}
+  )

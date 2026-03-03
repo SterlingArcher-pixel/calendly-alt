@@ -42,12 +42,12 @@ export default function TeamPage() {
     async function load() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) { setLoading(false); return; }
 
       const { data: host } = await supabase
         .from("hosts")
         .select("id")
-        .eq("user_id", user.id)
+        .eq("id", user.id)
         .single();
 
       if (!host) return;
