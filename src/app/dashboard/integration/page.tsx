@@ -235,5 +235,4 @@ export default function IntegrationPage() {
         </div>
       </div>
     </div>
-  );
-}
+  )

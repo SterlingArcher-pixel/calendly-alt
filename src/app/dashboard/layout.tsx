@@ -31,13 +31,4 @@ export default async function DashboardLayout({
       {/* Main content */}
       <div className="lg:ml-64">
         {/* Top bar */}
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-end border-b bg-white/80 px-8 backdrop-blur-sm">
-          <SignOutButton />
-        </header>
-
-        <MobileHeader />
-        <main className="px-8 py-8"><OrgProvider>{children}</OrgProvider></main>
-      </div>
-    </div>
-  );
-}
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-end border-b bg-white/80 

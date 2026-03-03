@@ -52,6 +52,4 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     org,
     members: members || [],
-    invitations: invitations || [],
-  });
-}
+    invitations: in
