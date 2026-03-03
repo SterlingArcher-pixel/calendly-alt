@@ -98,7 +98,7 @@ export default async function DashboardOverview() {
         </div>
       </div>
 
-      <div className="grid items-start gap-8 lg:grid-cols-[1fr_380px]">
+      <div className="grid items-start gap-8 lg:grid-cols-2">
         {/* Upcoming bookings */}
         <div>
           <h2 className="mb-4 text-lg font-semibold text-gray-900">Upcoming Bookings</h2>
@@ -115,7 +115,7 @@ export default async function DashboardOverview() {
                 const start = new Date(b.starts_at);
                 const mt = b.meeting_types as any;
                 return (
-                  <div key={b.id} className="flex items-center justify-between rounded-xl border bg-white p-4 transition-shadow hover:shadow-sm">
+                  <div key={b.id} className="flex items-center justify-between rounded-xl border bg-white p-3 gap-3 transition-shadow hover:shadow-sm">
                     <div className="flex items-center gap-4">
                       <div className="flex flex-col items-center rounded-lg bg-blue-50 px-3.5 py-2 text-center">
                         <span className="text-[10px] font-semibold uppercase tracking-wide text-blue-500">
