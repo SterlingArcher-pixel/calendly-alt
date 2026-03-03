@@ -124,7 +124,7 @@ export default async function BookingsPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="mb-8 grid grid-cols-3 gap-5">
+      <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-5">
         <div className="rounded-xl border bg-white p-5">
           <p className="text-sm font-medium text-gray-500">Upcoming</p>
           <p className="mt-1 text-3xl font-bold text-blue-600">{upcomingBookings?.length || 0}</p>

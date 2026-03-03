@@ -64,7 +64,7 @@ export default function Sidebar({ host }: { host: any }) {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r bg-white">
+    <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-white lg:flex">
       {/* Logo */}
       <div className="flex h-16 items-center gap-2.5 border-b px-6">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">

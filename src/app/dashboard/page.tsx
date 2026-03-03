@@ -45,7 +45,7 @@ export default async function DashboardOverview() {
       </div>
 
       {/* Stats */}
-      <div className="mb-8 grid grid-cols-4 gap-5">
+      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-5">
         <div className="rounded-xl border bg-white p-5">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-gray-500">Meeting Types</p>
