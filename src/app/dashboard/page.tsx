@@ -30,6 +30,13 @@ export default async function DashboardOverview() {
     .eq("host_id", user.id);
 
   const { count: pastCount } = await supabase
+
+  const { data: allBookings } = await supabase
+    .from("bookings")
+    .select("*, meeting_types(title, color, duration_minutes)")
+    .eq("host_id", user.id)
+    .order("starts_at", { ascending: false })
+    .limit(8);
     .from("bookings").select("*", { count: "exact", head: true })
     .eq("host_id", user.id).eq("status", "confirmed").lt("starts_at", now);
 
@@ -166,7 +173,7 @@ export default async function DashboardOverview() {
         <h2 className="mb-4 text-lg font-semibold text-gray-900">Recent Activity</h2>
         <div className="rounded-xl border bg-white">
           <div className="divide-y">
-            {bookings.slice(0, 8).map((b: any) => {
+            {(allBookings || []).map((b: any) => {
               const start = new Date(b.starts_at);
               const isPast = start < new Date();
               const mt = b.meeting_types;

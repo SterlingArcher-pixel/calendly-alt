@@ -56,12 +56,4 @@ export default function MobileHeader() {
                   isActive ? "bg-blue-50 text-blue-700" : "text-gray-600"
                 }`}
               >
-                {item.label}
-              </Link>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
+            
