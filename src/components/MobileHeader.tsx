@@ -10,6 +10,7 @@ const navItems = [
   { label: "Meeting Types", href: "/dashboard/meeting-types" },
   { label: "Availability", href: "/dashboard/availability" },
   { label: "Team", href: "/dashboard/team" },
+  { label: "Team Schedule", href: "/dashboard/team-bookings" },
 ];
 
 export default function MobileHeader() {

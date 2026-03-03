@@ -1,3 +1,5 @@
+import { OrgProvider } from "@/contexts/OrgContext";
+import OrgBadge from "@/components/OrgBadge";
 import MobileHeader from "@/components/MobileHeader";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
@@ -34,7 +36,7 @@ export default async function DashboardLayout({
         </header>
 
         <MobileHeader />
-        <main className="px-8 py-8">{children}</main>
+        <main className="px-8 py-8"><OrgProvider>{children}</OrgProvider></main>
       </div>
     </div>
   );

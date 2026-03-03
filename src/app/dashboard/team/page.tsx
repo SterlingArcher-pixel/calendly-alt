@@ -132,6 +132,14 @@ export default function TeamPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Team</h1>
         <p className="mt-1 text-gray-500">
+      {/* Viewer notice */}
+      {currentRole === "viewer" && (
+        <div id="viewer-notice" className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+          <p className="text-sm text-amber-800">
+            <span className="font-semibold">View-only access.</span> You can see team members but cannot invite or manage roles.
+          </p>
+        </div>
+      )}
           Manage your {orgName} team members and invitations.
         </p>
       </div>
