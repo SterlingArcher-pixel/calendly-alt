@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import AvailabilityEditor from "@/components/AvailabilityEditor";
 
 export default async function DashboardOverview() {
   const supabase = await createClient();
@@ -14,9 +13,6 @@ export default async function DashboardOverview() {
 
   const { data: meetingTypes } = await supabase
     .from("meeting_types").select("*").eq("host_id", user.id).order("sort_order");
-
-  const { data: availabilityRules } = await supabase
-    .from("availability_rules").select("*").eq("host_id", user.id).order("day_of_week");
 
   const now = new Date().toISOString();
 
@@ -98,7 +94,7 @@ export default async function DashboardOverview() {
         </div>
       </div>
 
-      <div className="grid items-start gap-8 lg:grid-cols-2">
+      <div >
         {/* Upcoming bookings */}
         <div>
           <h2 className="mb-4 text-lg font-semibold text-gray-900">Upcoming Bookings</h2>
@@ -161,11 +157,6 @@ export default async function DashboardOverview() {
               })}
             </div>
           )}
-        </div>
-
-        {/* Availability */}
-        <div className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto rounded-xl">
-          <AvailabilityEditor hostId={user.id} existingRules={availabilityRules || []} />
         </div>
       </div>
     </div>
