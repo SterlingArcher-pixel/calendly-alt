@@ -139,7 +139,7 @@ export default function CreateMeetingType({ hostId }: { hostId: string }) {
                 className={`h-8 w-8 rounded-full ${
                   form.color === c ? "ring-2 ring-offset-2" : ""
                 }`}
-                style={{ backgroundColor: c, ringColor: c }}
+                style={{ backgroundColor: c }}
               />
             ))}
           </div>
