@@ -31,4 +31,16 @@ export default async function DashboardLayout({
       {/* Main content */}
       <div className="lg:ml-64">
         {/* Top bar */}
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-end border-b bg-white/80 
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-end border-b bg-white/80 px-6 backdrop-blur">
+          <SignOutButton />
+        </header>
+
+        <MobileHeader />
+
+        <main className="p-6">
+          <OrgProvider>{children}</OrgProvider>
+        </main>
+      </div>
+    </div>
+  );
+}
