@@ -57,6 +57,7 @@ export default async function DashboardOverview() {
           </div>
           <p className="mt-2 text-3xl font-bold text-gray-900">{meetingTypes?.length || 0}</p>
         </div>
+
         <div className="rounded-xl border bg-white p-5">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-gray-500">Upcoming</p>
@@ -68,6 +69,7 @@ export default async function DashboardOverview() {
           </div>
           <p className="mt-2 text-3xl font-bold text-indigo-600">{upcomingBookings?.length || 0}</p>
         </div>
+
         <div className="rounded-xl border bg-white p-5">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-gray-500">Completed</p>
@@ -79,6 +81,7 @@ export default async function DashboardOverview() {
           </div>
           <p className="mt-2 text-3xl font-bold text-green-600">{pastCount || 0}</p>
         </div>
+
         <div className="rounded-xl border bg-white p-5">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-gray-500">Calendar</p>
@@ -94,70 +97,67 @@ export default async function DashboardOverview() {
         </div>
       </div>
 
-      <div >
-        {/* Upcoming bookings */}
-        <div>
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Upcoming Bookings</h2>
-          {!upcomingBookings?.length ? (
-            <div className="rounded-xl border-2 border-dashed border-gray-200 bg-white p-12 text-center">
-              <svg className="mx-auto h-10 w-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-              </svg>
-              <p className="mt-3 text-sm text-gray-400">No upcoming bookings yet</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {upcomingBookings.map((b) => {
-                const start = new Date(b.starts_at);
-                const mt = b.meeting_types as any;
-                return (
-                  <div key={b.id} className="flex items-center justify-between rounded-xl border bg-white p-3 gap-3 transition-shadow hover:shadow-sm">
-                    <div className="flex items-center gap-4">
-                      <div className="flex flex-col items-center rounded-lg bg-blue-50 px-3.5 py-2 text-center">
-                        <span className="text-[10px] font-semibold uppercase tracking-wide text-blue-500">
-                          {start.toLocaleDateString("en-US", { month: "short" })}
-                        </span>
-                        <span className="text-xl font-bold text-blue-700">{start.getDate()}</span>
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          {mt?.color && (
-                            <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: mt.color }} />
-                          )}
-                          <p className="font-medium text-gray-900">{mt?.title || "Meeting"}</p>
-                        </div>
-                        <p className="mt-0.5 text-sm text-gray-500">
-                          with <span className="font-medium text-gray-700">{b.guest_name}</span> &middot;{" "}
-                          {start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-                          {" "}({mt?.duration_minutes || 30} min)
-                        </p>
-                        <p className="mt-0.5 text-xs text-gray-400">{b.guest_email}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {b.google_meet_link && (
-                        <a
-                          href={b.google_meet_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 transition-colors hover:bg-green-100"
-                        >
-                          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
-                          </svg>
-                          Join
-                        </a>
-                      )}
-                      <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-                        {b.status}
+      {/* Upcoming bookings */}
+      <div>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">Upcoming Bookings</h2>
+        {!upcomingBookings?.length ? (
+          <div className="rounded-xl border-2 border-dashed border-gray-200 bg-white p-12 text-center">
+            <svg className="mx-auto h-10 w-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+            </svg>
+            <p className="mt-3 text-sm text-gray-400">No upcoming bookings yet</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {upcomingBookings.map((b) => {
+              const start = new Date(b.starts_at);
+              const mt = b.meeting_types as any;
+              return (
+                <div key={b.id} className="flex items-center justify-between rounded-xl border bg-white p-3 gap-3 transition-shadow hover:shadow-sm">
+                  <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-center rounded-lg bg-blue-50 px-3.5 py-2 text-center">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-blue-500">
+                        {start.toLocaleDateString("en-US", { month: "short" })}
                       </span>
+                      <span className="text-xl font-bold text-blue-700">{start.getDate()}</span>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        {mt?.color && (
+                          <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: mt.color }} />
+                        )}
+                        <p className="font-medium text-gray-900">{mt?.title || "Meeting"}</p>
+                      </div>
+                      <p className="mt-0.5 text-sm text-gray-500">
+                        with <span className="font-medium text-gray-700">{b.guest_name}</span> &middot;{" "}
+                        {start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} ({mt?.duration_minutes || 30} min)
+                      </p>
+                      <p className="mt-0.5 text-xs text-gray-400">{b.guest_email}</p>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                  <div className="flex items-center gap-2">
+                    {b.google_meet_link && (
+                      
+                        href={b.google_meet_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 transition-colors hover:bg-green-100"
+                      >
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
+                        </svg>
+                        Join
+                      </a>
+                    )}
+                    <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                      {b.status}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
