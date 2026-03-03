@@ -10,7 +10,7 @@ const tabs = [
 
 type Tab = typeof tabs[number]["key"];
 
-function BookingCard({ b, isPast }: { b: any; isPast?: boolean }) {
+function BookingCard({ b, isPast, onCancel }: { b: any; isPast?: boolean; onCancel?: (b: any) => void }) {
   const start = new Date(b.starts_at);
   const mt = b.meeting_types;
   return (
@@ -44,7 +44,15 @@ function BookingCard({ b, isPast }: { b: any; isPast?: boolean }) {
             Join
           </a>
         )}
-        <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+        {!isPast && b.status !== "cancelled" && onCancel && (
+            <button
+              onClick={() => onCancel(b)}
+              className="rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+            >
+              Cancel
+            </button>
+          )}
+          <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${
           b.status === "cancelled"
             ? "bg-red-50 text-red-700"
             : b.status === "rescheduled"
@@ -60,10 +68,61 @@ function BookingCard({ b, isPast }: { b: any; isPast?: boolean }) {
   );
 }
 
+function CancelModal({ booking, onClose, onCancelled }: { booking: any; onClose: () => void; onCancelled: () => void }) {
+  const [reason, setReason] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleCancel() {
+    setLoading(true);
+    const res = await fetch("/api/bookings/cancel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bookingId: booking.id, reason }),
+    });
+    if (res.ok) {
+      onCancelled();
+    }
+    setLoading(false);
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        <h3 className="text-lg font-semibold text-gray-900">Cancel Interview</h3>
+        <p className="mt-1 text-sm text-gray-500">
+          Cancel <span className="font-medium">{booking.meeting_types?.title || "Meeting"}</span> with{" "}
+          <span className="font-medium">{booking.guest_name}</span>?
+        </p>
+        <p className="mt-1 text-xs text-gray-400">A cancellation email will be sent to {booking.guest_email}.</p>
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Reason for cancellation (optional)"
+          className="mt-4 w-full rounded-lg border border-gray-200 p-3 text-sm text-gray-700 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          rows={2}
+        />
+        <div className="mt-4 flex justify-end gap-2">
+          <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+            Keep It
+          </button>
+          <button
+            onClick={handleCancel}
+            disabled={loading}
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          >
+            {loading ? "Cancelling..." : "Cancel Interview"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function BookingsClient({
   upcoming, past, cancelled
 }: { upcoming: any[]; past: any[]; cancelled: any[] }) {
   const [tab, setTab] = useState<Tab>("upcoming");
+  const [cancelBooking, setCancelBooking] = useState<any>(null);
 
   const counts: Record<Tab, number> = {
     upcoming: upcoming.length,
@@ -110,9 +169,16 @@ export default function BookingsClient({
       ) : (
         <div className="space-y-3">
           {bookings.map((b: any) => (
-            <BookingCard key={b.id} b={b} isPast={tab === "past"} />
+            <BookingCard key={b.id} b={b} isPast={tab === "past"} onCancel={tab === "upcoming" ? setCancelBooking : undefined} />
           ))}
         </div>
+      )}
+      {cancelBooking && (
+        <CancelModal
+          booking={cancelBooking}
+          onClose={() => setCancelBooking(null)}
+          onCancelled={() => { setCancelBooking(null); window.location.reload(); }}
+        />
       )}
     </div>
   );

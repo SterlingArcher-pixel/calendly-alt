@@ -160,6 +160,57 @@ export default async function DashboardOverview() {
           </div>
         )}
       </div>
-    </div>
+    
+      {/* Recent Activity */}
+      <div className="mt-8">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">Recent Activity</h2>
+        <div className="rounded-xl border bg-white">
+          <div className="divide-y">
+            {bookings.slice(0, 8).map((b: any) => {
+              const start = new Date(b.starts_at);
+              const isPast = start < new Date();
+              const mt = b.meeting_types;
+              return (
+                <div key={b.id} className="flex items-center gap-3 px-5 py-3.5">
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                    b.status === "cancelled" ? "bg-red-100" : isPast ? "bg-green-100" : "bg-blue-100"
+                  }`}>
+                    {b.status === "cancelled" ? (
+                      <svg className="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    ) : isPast ? (
+                      <svg className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                      </svg>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-900">
+                      <span className="font-medium">{b.guest_name}</span>
+                      {b.status === "cancelled" ? " cancelled " : isPast ? " completed " : " booked "}
+                      <span className="text-gray-500">{mt?.title || "Meeting"}</span>
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} at{" "}
+                      {start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+                    </p>
+                  </div>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                    b.status === "cancelled" ? "bg-red-50 text-red-600" : isPast ? "bg-green-50 text-green-600" : "bg-blue-50 text-blue-600"
+                  }`}>
+                    {b.status === "cancelled" ? "cancelled" : isPast ? "completed" : "upcoming"}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+</div>
   );
 }

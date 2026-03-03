@@ -1,0 +1,179 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+
+export default function SettingsPage() {
+  const [host, setHost] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    timezone: "America/Denver",
+    booking_url_slug: "",
+  });
+
+  const timezones = [
+    "America/New_York", "America/Chicago", "America/Denver",
+    "America/Los_Angeles", "America/Phoenix", "America/Anchorage", "Pacific/Honolulu",
+  ];
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setLoading(false); return; }
+
+      const { data } = await supabase.from("hosts").select("*").eq("id", user.id).single();
+      if (data) {
+        setHost(data);
+        setForm({
+          name: data.name || "",
+          timezone: data.timezone || "America/Denver",
+          booking_url_slug: data.booking_url_slug || "",
+        });
+      }
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  async function handleSave() {
+    if (!host) return;
+    setSaving(true);
+    const supabase = createClient();
+    await supabase.from("hosts").update({
+      name: form.name,
+      timezone: form.timezone,
+      booking_url_slug: form.booking_url_slug,
+    }).eq("id", host.id);
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  }
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-2xl">
+        <h1 className="mb-6 text-2xl font-bold text-gray-900">Settings</h1>
+        <div className="animate-pulse space-y-4">
+          <div className="h-20 rounded-xl bg-gray-100" />
+          <div className="h-40 rounded-xl bg-gray-100" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-2xl">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+        <p className="mt-1 text-sm text-gray-500">Manage your profile and preferences</p>
+      </div>
+
+      {/* Profile */}
+      <div className="mb-6 rounded-xl border bg-white p-6">
+        <h2 className="mb-4 text-base font-semibold text-gray-900">Profile</h2>
+        <div className="flex items-center gap-4 mb-6">
+          {host?.avatar_url ? (
+            <img src={host.avatar_url} alt="" className="h-16 w-16 rounded-full" />
+          ) : (
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-xl font-bold text-blue-700">
+              {form.name?.[0] || "?"}
+            </div>
+          )}
+          <div>
+            <p className="font-semibold text-gray-900">{form.name || "Unnamed"}</p>
+            <p className="text-sm text-gray-500">{host?.email}</p>
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Display Name</label>
+            <input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Timezone</label>
+            <select
+              value={form.timezone}
+              onChange={(e) => setForm({ ...form, timezone: e.target.value })}
+              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              {timezones.map(tz => (
+                <option key={tz} value={tz}>{tz.replace("_", " ")}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Booking URL Slug</label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-400">calendly-alt.vercel.app/</span>
+              <input
+                value={form.booking_url_slug}
+                onChange={(e) => setForm({ ...form, booking_url_slug: e.target.value })}
+                className="flex-1 rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="charlie-fischer"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Notifications */}
+      <div className="mb-6 rounded-xl border bg-white p-6">
+        <h2 className="mb-4 text-base font-semibold text-gray-900">Notifications</h2>
+        <div className="space-y-4">
+          {[
+            { label: "Email confirmation to candidates", desc: "Send booking confirmation via email", on: true },
+            { label: "Calendar invite", desc: "Auto-create Google Calendar event with Meet link", on: true },
+            { label: "SMS reminders", desc: "24hr + 2hr interview reminders via SMS", on: false },
+            { label: "Cancellation notifications", desc: "Email candidate when interview is cancelled", on: true },
+          ].map((item, i) => (
+            <div key={i} className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-900">{item.label}</p>
+                <p className="text-xs text-gray-500">{item.desc}</p>
+              </div>
+              <div className={`relative h-6 w-11 rounded-full ${item.on ? "bg-blue-600" : "bg-gray-300"}`}>
+                <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${item.on ? "translate-x-5" : "translate-x-0"}`} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Danger zone */}
+      <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-6">
+        <h2 className="mb-2 text-base font-semibold text-red-900">Danger Zone</h2>
+        <p className="mb-4 text-sm text-red-700">Permanently delete your account and all data.</p>
+        <button className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100">
+          Delete Account
+        </button>
+      </div>
+
+      {/* Save */}
+      <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t bg-gray-50/80 px-1 py-4 backdrop-blur">
+        {saved && (
+          <span className="flex items-center gap-1.5 text-sm font-medium text-green-600">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            Saved
+          </span>
+        )}
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"
+        >
+          {saving ? "Saving..." : "Save Changes"}
+        </button>
+      </div>
+    </div>
+  );
+}
