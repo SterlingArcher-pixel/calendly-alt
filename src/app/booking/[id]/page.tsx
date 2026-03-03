@@ -270,7 +270,20 @@ export default function BookingManagePage() {
             </a>
           )}
 
-          {/* Actions */}
+          {/* Add to Calendar */}
+            {!isCancelled && (
+              <button
+                onClick={handleDownloadICS}
+                className="mb-5 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-gray-200 px-5 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+                Add to Calendar (.ics)
+              </button>
+            )}
+
+            {/* Actions */}
           {!isCancelled && !isPast && (
             <div className="flex gap-3">
               <button
