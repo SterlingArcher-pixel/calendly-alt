@@ -218,7 +218,7 @@ export default function MeetingTypesPage() {
                 }}
                 className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
               >
-                Copy Link
+                {copiedId === mt.id ? "Copied!" : "Copy Link"}
               </button>
               <button
                 onClick={() => toggleActive(mt)}
