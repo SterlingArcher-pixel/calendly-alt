@@ -100,7 +100,7 @@ export default function Sidebar({ host }: { host: any }) {
             CA
           </div>
           <span className="text-base font-semibold text-gray-900">
-            Scheduling Tool
+            Apploi Scheduling
           </span>
         </div>
 

@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Scheduling Tool — Meeting Scheduling",
-  description: "Simple meeting scheduling powered by Google Calendar",
+  title: "Apploi Scheduling — Interview Scheduling",
+  description: "Apploi-native interview scheduling for healthcare recruiting",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

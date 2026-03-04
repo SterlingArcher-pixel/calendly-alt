@@ -26,7 +26,7 @@ export default function MeetingTypesPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: "", description: "", duration_minutes: 30, color: COLORS[0] });
   const [saving, setSaving] = useState(false);
-  const [hostSlug, setHostSlug] = useState("");
+  const [hostSlug, setHostSlug] = useState(""); const [copiedId, setCopiedId] = useState(");
 
   useEffect(() => {
     loadTypes();
@@ -214,7 +214,7 @@ export default function MeetingTypesPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/${hostSlug}/${mt.slug}`);
+                  navigator.clipboard.writeText(`${window.location.origin}/${hostSlug}/${mt.slug}`); setCopiedId(mt.id); setTimeout(() => setCopiedId(""), 2000);
                 }}
                 className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
               >

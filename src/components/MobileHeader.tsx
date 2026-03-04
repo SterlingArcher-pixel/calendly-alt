@@ -27,7 +27,7 @@ export default function MobileHeader({ host }: { host: any }) {
             CA
           </div>
           <span className="text-sm font-semibold text-gray-900">
-            Scheduling Tool
+            Apploi Scheduling
           </span>
         </div>
         <button
