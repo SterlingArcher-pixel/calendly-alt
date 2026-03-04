@@ -26,7 +26,7 @@ export default function MeetingTypesPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: "", description: "", duration_minutes: 30, color: COLORS[0] });
   const [saving, setSaving] = useState(false);
-  const [hostSlug, setHostSlug] = useState(""); const [copiedId, setCopiedId] = useState(");
+  const [hostSlug, setHostSlug] = useState(""); const [copiedId, setCopiedId] = useState("");
 
   useEffect(() => {
     loadTypes();
