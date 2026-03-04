@@ -13,6 +13,7 @@ const NAV = [
   { href: "/dashboard/team", label: "Team", icon: "users" },
   { href: "/dashboard/team-bookings", label: "Team Schedule", icon: "clipboard" },
   { href: "/dashboard/integration", label: "Apploi Integration", icon: "integration" },
+  { href: "/dashboard/workflows", label: "Workflows", icon: "workflow" },
   { href: "/dashboard/settings", label: "Settings", icon: "settings" },
 ];
 
