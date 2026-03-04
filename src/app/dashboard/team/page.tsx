@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -41,8 +40,13 @@ export default function TeamPage() {
   useEffect(() => {
     async function load() {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       const { data: host } = await supabase
         .from("hosts")
@@ -50,7 +54,10 @@ export default function TeamPage() {
         .eq("id", user.id)
         .single();
 
-      if (!host) return;
+      if (!host) {
+        setLoading(false);
+        return;
+      }
       setHostId(host.id);
 
       const res = await fetch("/api/team/members?host_id=" + host.id);
@@ -61,9 +68,10 @@ export default function TeamPage() {
       setOrgName(data.org?.name || "");
 
       // Find current user's role
-      const me = (data.members || []).find((m: Member) => m.host_id === host.id);
+      const me = (data.members || []).find(
+        (m: Member) => m.host_id === host.id
+      );
       setUserRole(me?.role || "");
-
       setLoading(false);
     }
     load();
@@ -85,12 +93,12 @@ export default function TeamPage() {
     });
 
     const data = await res.json();
-
     if (data.error) {
       setMessage(data.error);
     } else {
       setMessage("Invitation sent to " + inviteEmail);
       setInviteEmail("");
+
       // Refresh members
       const refreshRes = await fetch("/api/team/members?host_id=" + hostId);
       const refreshData = await refreshRes.json();
@@ -117,11 +125,25 @@ export default function TeamPage() {
     return (
       <div className="mx-auto max-w-3xl p-6">
         <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-white p-12 text-center">
-          <svg className="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+          <svg
+            className="mx-auto h-12 w-12 text-gray-300"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.5}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
+            />
           </svg>
-          <h2 className="mt-4 text-lg font-semibold text-gray-900">No Organization Set Up</h2>
-          <p className="mt-2 text-sm text-gray-500">Contact your admin to get added to an organization.</p>
+          <h2 className="mt-4 text-lg font-semibold text-gray-900">
+            No Organization Set Up
+          </h2>
+          <p className="mt-2 text-sm text-gray-500">
+            Contact your admin to get added to an organization.
+          </p>
         </div>
       </div>
     );
@@ -132,22 +154,26 @@ export default function TeamPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Team</h1>
         <p className="mt-1 text-gray-500">
-      {/* Viewer notice */}
-      {currentRole === "viewer" && (
-        <div id="viewer-notice" className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
-          <p className="text-sm text-amber-800">
-            <span className="font-semibold">View-only access.</span> You can see team members but cannot invite or manage roles.
-          </p>
-        </div>
-      )}
           Manage your {orgName} team members and invitations.
         </p>
       </div>
 
+      {/* Viewer notice */}
+      {userRole === "viewer" && (
+        <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+          <p className="text-sm text-amber-800">
+            <span className="font-semibold">View-only access.</span> You can see
+            team members but cannot invite or manage roles.
+          </p>
+        </div>
+      )}
+
       {/* Invite Form (admin only) */}
       {userRole === "admin" && (
         <div className="mb-8 rounded-2xl border bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Invite a Recruiter</h2>
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">
+            Invite a Recruiter
+          </h2>
           <div className="flex gap-3">
             <input
               type="email"
@@ -174,7 +200,12 @@ export default function TeamPage() {
             </button>
           </div>
           {message && (
-            <p className={"mt-3 text-sm " + (message.includes("sent") ? "text-green-600" : "text-red-600")}>
+            <p
+              className={
+                "mt-3 text-sm " +
+                (message.includes("sent") ? "text-green-600" : "text-red-600")
+              }
+            >
               {message}
             </p>
           )}
@@ -190,22 +221,38 @@ export default function TeamPage() {
         </div>
         <div className="divide-y">
           {members.map((member) => (
-            <div key={member.id} className="flex items-center justify-between px-6 py-4">
+            <div
+              key={member.id}
+              className="flex items-center justify-between px-6 py-4"
+            >
               <div className="flex items-center gap-3">
                 {member.hosts?.avatar_url ? (
-                  <img src={member.hosts.avatar_url} alt="" className="h-10 w-10 rounded-full" />
+                  <img
+                    src={member.hosts.avatar_url}
+                    alt=""
+                    className="h-10 w-10 rounded-full"
+                  />
                 ) : (
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
                     {member.hosts?.name?.[0] || "?"}
                   </div>
                 )}
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{member.hosts?.name}</p>
-                  <p className="text-xs text-gray-500">{member.hosts?.email}</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {member.hosts?.name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {member.hosts?.email}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className={"rounded-full px-3 py-1 text-xs font-medium " + (roleColors[member.role] || "bg-gray-100 text-gray-600")}>
+                <span
+                  className={
+                    "rounded-full px-3 py-1 text-xs font-medium " +
+                    (roleColors[member.role] || "bg-gray-100 text-gray-600")
+                  }
+                >
                   {member.role}
                 </span>
                 <span className="text-xs text-gray-400">
@@ -227,20 +274,42 @@ export default function TeamPage() {
           </div>
           <div className="divide-y">
             {invitations.map((inv) => (
-              <div key={inv.id} className="flex items-center justify-between px-6 py-4">
+              <div
+                key={inv.id}
+                className="flex items-center justify-between px-6 py-4"
+              >
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 text-sm">
-                    <svg className="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    <svg
+                      className="h-5 w-5 text-yellow-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+                      />
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{inv.email}</p>
-                    <p className="text-xs text-gray-500">Invited {new Date(inv.created_at).toLocaleDateString()}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {inv.email}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Invited {new Date(inv.created_at).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={"rounded-full px-3 py-1 text-xs font-medium " + (roleColors[inv.role] || "")}>
+                  <span
+                    className={
+                      "rounded-full px-3 py-1 text-xs font-medium " +
+                      (roleColors[inv.role] || "")
+                    }
+                  >
                     {inv.role}
                   </span>
                   <span className="rounded-full bg-yellow-50 px-3 py-1 text-xs font-medium text-yellow-700">
