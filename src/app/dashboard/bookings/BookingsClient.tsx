@@ -31,11 +31,11 @@ function BookingCard({
       }`}
     >
       <div className="flex items-center gap-4">
-        <div className="flex flex-col items-center rounded-lg bg-blue-50 px-3.5 py-2 text-center min-w-[56px]">
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-blue-500">
+        <div className="flex flex-col items-center rounded-lg bg-teal-50 px-3.5 py-2 text-center min-w-[56px]">
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-teal-500">
             {start.toLocaleDateString("en-US", { month: "short" })}
           </span>
-          <span className="text-xl font-bold text-blue-700">{start.getDate()}</span>
+          <span className="text-xl font-bold text-teal-700">{start.getDate()}</span>
         </div>
         <div>
           <div className="flex items-center gap-2">
@@ -90,7 +90,7 @@ function BookingCard({
               ? "bg-amber-50 text-amber-700"
               : isPast
               ? "bg-gray-100 text-gray-500"
-              : "bg-blue-50 text-blue-700"
+              : "bg-teal-50 text-teal-700"
           }`}
         >
           {isPast && b.status !== "cancelled" ? "completed" : b.status}
@@ -170,7 +170,7 @@ function EditModal({
             <input
               value={form.guest_name}
               onChange={(e) => setForm({ ...form, guest_name: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
           <div>
@@ -181,7 +181,7 @@ function EditModal({
               type="email"
               value={form.guest_email}
               onChange={(e) => setForm({ ...form, guest_email: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
           <div>
@@ -190,7 +190,7 @@ function EditModal({
               type="date"
               value={form.date}
               onChange={(e) => setForm({ ...form, date: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
           <div>
@@ -199,7 +199,7 @@ function EditModal({
               type="time"
               value={form.time}
               onChange={(e) => setForm({ ...form, time: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
           <div className="sm:col-span-2">
@@ -209,7 +209,7 @@ function EditModal({
             <select
               value={form.meeting_type_id}
               onChange={(e) => setForm({ ...form, meeting_type_id: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             >
               <option value="">Select a meeting type</option>
               {meetingTypes.map((mt) => (
@@ -235,7 +235,7 @@ function EditModal({
           <button
             onClick={handleSave}
             disabled={!form.guest_name || !form.guest_email || saving}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
           >
             {saving ? "Saving..." : "Save Changes"}
           </button>
@@ -286,7 +286,7 @@ function CancelModal({
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder="Reason for cancellation (optional)"
-          className="mt-4 w-full rounded-lg border border-gray-200 p-3 text-sm text-gray-700 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="mt-4 w-full rounded-lg border border-gray-200 p-3 text-sm text-gray-700 placeholder:text-gray-400 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
           rows={2}
         />
         <div className="mt-4 flex justify-end gap-2">
@@ -365,7 +365,7 @@ export default function BookingsClient({
               onClick={() => setTab(t.key)}
               className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 tab === t.key
-                  ? "bg-blue-50 text-blue-700"
+                  ? "bg-teal-50 text-teal-700"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -373,7 +373,7 @@ export default function BookingsClient({
               <span
                 className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] ${
                   tab === t.key
-                    ? "bg-blue-100 text-blue-600"
+                    ? "bg-teal-100 text-teal-600"
                     : "bg-gray-100 text-gray-400"
                 }`}
               >

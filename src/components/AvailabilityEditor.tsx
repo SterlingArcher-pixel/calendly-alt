@@ -182,7 +182,7 @@ export default function AvailabilityEditor({
               <button
                 onClick={() => toggleDay(day.day_of_week)}
                 className={`flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
-                  day.is_active ? "bg-blue-600" : "bg-gray-300"
+                  day.is_active ? "bg-teal-600" : "bg-gray-300"
                 }`}
               >
                 <span
@@ -246,7 +246,7 @@ export default function AvailabilityEditor({
                 <div className="flex shrink-0 items-center gap-1">
                   <button
                     onClick={() => addBlock(day.day_of_week)}
-                    className="rounded p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600"
+                    className="rounded p-1.5 text-gray-400 hover:bg-teal-50 hover:text-teal-600"
                     title="Add time block"
                   >
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -255,7 +255,7 @@ export default function AvailabilityEditor({
                   </button>
                   <button
                     onClick={() => copyToAll(day.day_of_week)}
-                    className="rounded p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600"
+                    className="rounded p-1.5 text-gray-400 hover:bg-teal-50 hover:text-teal-600"
                     title="Copy to all weekdays"
                   >
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -273,7 +273,7 @@ export default function AvailabilityEditor({
         <button
           onClick={handleSave}
           disabled={saving}
-          className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-lg bg-teal-600 px-5 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save Availability"}
         </button>

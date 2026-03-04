@@ -89,8 +89,8 @@ export default async function DashboardOverview() {
 
         <div className="rounded-xl border bg-white p-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-              <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-50">
+              <svg className="h-5 w-5 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
               </svg>
             </div>
@@ -156,7 +156,7 @@ export default async function DashboardOverview() {
             </h2>
             <Link
               href="/dashboard/bookings"
-              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+              className="text-sm font-medium text-teal-600 hover:text-teal-700"
             >
               View all
             </Link>
@@ -171,7 +171,7 @@ export default async function DashboardOverview() {
               </p>
               <Link
                 href="/dashboard/meeting-types"
-                className="mt-4 inline-block text-sm font-medium text-blue-600 hover:text-blue-700"
+                className="mt-4 inline-block text-sm font-medium text-teal-600 hover:text-teal-700"
               >
                 Share a booking link to get started
               </Link>
@@ -187,13 +187,13 @@ export default async function DashboardOverview() {
                     className="flex items-center justify-between rounded-xl border bg-white p-4 transition-shadow hover:shadow-sm"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="flex flex-col items-center rounded-lg bg-blue-50 px-3.5 py-2 text-center">
-                        <span className="text-[10px] font-semibold uppercase text-blue-500">
+                      <div className="flex flex-col items-center rounded-lg bg-teal-50 px-3.5 py-2 text-center">
+                        <span className="text-[10px] font-semibold uppercase text-teal-500">
                           {start.toLocaleDateString("en-US", {
                             month: "short",
                           })}
                         </span>
-                        <span className="text-xl font-bold text-blue-700">
+                        <span className="text-xl font-bold text-teal-700">
                           {start.getDate()}
                         </span>
                       </div>
@@ -233,7 +233,7 @@ export default async function DashboardOverview() {
                           Join
                         </a>
                       )}
-                      <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                      <span className="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700">
                         {b.status}
                       </span>
                     </div>

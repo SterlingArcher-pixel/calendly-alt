@@ -25,13 +25,14 @@ export default async function DashboardLayout({
     .single();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: "#F8F6F3" }}>
       <Sidebar host={host} />
 
       {/* Main content */}
       <div className="lg:ml-64">
         {/* Top bar */}
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-end border-b bg-white/80 px-6 backdrop-blur">
+        <header className="sticky top-0 z-10 flex h-14 items-center justify-end border-b border-gray-200/60 px-6 backdrop-blur"
+          style={{ backgroundColor: "rgba(248, 246, 243, 0.85)" }}>
           <SignOutButton />
         </header>
 

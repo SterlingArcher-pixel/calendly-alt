@@ -11,7 +11,7 @@ export default function IntegrationPage() {
   const statusColors: Record<string, string> = {
     applied: "bg-gray-100 text-gray-700",
     screening: "bg-yellow-50 text-yellow-700",
-    interviewing: "bg-blue-50 text-blue-700",
+    interviewing: "bg-teal-50 text-teal-700",
     offer_extended: "bg-green-50 text-green-700",
     hired: "bg-emerald-50 text-emerald-700",
   };
@@ -134,7 +134,7 @@ export default function IntegrationPage() {
                   <td className="py-3.5 pl-3 pr-6">
                     {c.status === "interviewing" ? (
                       <div className="flex items-center gap-2">
-                        <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                        <span className="rounded-lg bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700">
                           Link sent
                         </span>
                         <span className="text-[10px] text-gray-400">{c.appliedDaysAgo}d ago</span>
@@ -162,8 +162,8 @@ export default function IntegrationPage() {
       <div className="grid gap-5 lg:grid-cols-2">
         <div className="rounded-xl border bg-white p-6">
           <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
-            <span className="rounded-lg bg-blue-100 p-1.5">
-              <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <span className="rounded-lg bg-teal-100 p-1.5">
+              <svg className="h-4 w-4 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
               </svg>
             </span>

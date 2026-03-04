@@ -112,7 +112,7 @@ export default function SettingsPage() {
           {host?.avatar_url ? (
             <img src={host.avatar_url} alt="" className="h-16 w-16 rounded-full" />
           ) : (
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-xl font-bold text-blue-700">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-teal-100 text-xl font-bold text-teal-700">
               {form.name?.[0] || "?"}
             </div>
           )}
@@ -125,12 +125,12 @@ export default function SettingsPage() {
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700">Display Name</label>
             <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500" />
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700">Timezone</label>
             <select value={form.timezone} onChange={(e) => setForm({ ...form, timezone: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500">
               {timezones.map(tz => (<option key={tz} value={tz}>{tz.replace("_", " ")}</option>))}
             </select>
           </div>
@@ -139,7 +139,7 @@ export default function SettingsPage() {
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-400">calendly-alt.vercel.app/</span>
               <input value={form.booking_url_slug} onChange={(e) => setForm({ ...form, booking_url_slug: e.target.value })}
-                className="flex-1 rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="flex-1 rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                 placeholder="charlie-fischer" />
             </div>
           </div>
@@ -157,7 +157,7 @@ export default function SettingsPage() {
                 <p className="text-xs text-gray-500">{item.desc}</p>
               </div>
               <button type="button" onClick={() => toggleNotification(i)}
-                className={`relative h-6 w-11 rounded-full transition-colors ${item.on ? "bg-blue-600" : "bg-gray-300"}`}>
+                className={`relative h-6 w-11 rounded-full transition-colors ${item.on ? "bg-teal-600" : "bg-gray-300"}`}>
                 <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${item.on ? "translate-x-5" : "translate-x-0"}`} />
               </button>
             </div>
@@ -214,7 +214,7 @@ export default function SettingsPage() {
       )}
 
       {/* Save */}
-      <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t bg-gray-50/80 px-1 py-4 backdrop-blur">
+      <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t bg-[#F8F6F3]/80 px-1 py-4 backdrop-blur">
         {saved && (
           <span className="flex items-center gap-1.5 text-sm font-medium text-green-600">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -224,7 +224,7 @@ export default function SettingsPage() {
           </span>
         )}
         <button onClick={handleSave} disabled={saving}
-          className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:opacity-50">
+          className="rounded-lg bg-teal-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-teal-700 disabled:opacity-50">
           {saving ? "Saving..." : "Save Changes"}
         </button>
       </div>

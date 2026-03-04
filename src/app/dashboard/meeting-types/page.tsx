@@ -133,7 +133,7 @@ export default function MeetingTypesPage() {
           <p className="mt-1 text-sm text-gray-500">{types.length} interview types configured</p>
         </div>
         <button onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
+          className="flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-teal-700">
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
@@ -150,7 +150,7 @@ export default function MeetingTypesPage() {
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Title</label>
               <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
                 placeholder="e.g. RN Phone Screen"
-                className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500" />
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Duration</label>
@@ -158,7 +158,7 @@ export default function MeetingTypesPage() {
                 {DURATIONS.map(d => (
                   <button key={d} onClick={() => setForm({ ...form, duration_minutes: d })}
                     className={`flex-1 rounded-lg border px-2 py-2.5 text-sm font-medium transition-colors ${
-                      form.duration_minutes === d ? "border-blue-500 bg-blue-50 text-blue-700" : "border-gray-200 text-gray-600 hover:border-gray-300"
+                      form.duration_minutes === d ? "border-teal-500 bg-teal-50 text-teal-700" : "border-gray-200 text-gray-600 hover:border-gray-300"
                     }`}>{d}m</button>
                 ))}
               </div>
@@ -167,7 +167,7 @@ export default function MeetingTypesPage() {
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Description</label>
               <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
                 placeholder="Brief description for candidates"
-                className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500" />
             </div>
             <div className="sm:col-span-2">
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Color</label>
@@ -183,7 +183,7 @@ export default function MeetingTypesPage() {
           <div className="mt-5 flex justify-end gap-2">
             <button onClick={() => setShowForm(false)} className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">Cancel</button>
             <button onClick={handleCreate} disabled={!form.title || saving}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+              className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50">
               {saving ? "Creating..." : "Create Meeting Type"}
             </button>
           </div>
@@ -199,7 +199,7 @@ export default function MeetingTypesPage() {
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700">Title</label>
                 <input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500" />
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700">Duration</label>
@@ -207,7 +207,7 @@ export default function MeetingTypesPage() {
                   {DURATIONS.map(d => (
                     <button key={d} onClick={() => setEditForm({ ...editForm, duration_minutes: d })}
                       className={`flex-1 rounded-lg border px-2 py-2.5 text-sm font-medium transition-colors ${
-                        editForm.duration_minutes === d ? "border-blue-500 bg-blue-50 text-blue-700" : "border-gray-200 text-gray-600 hover:border-gray-300"
+                        editForm.duration_minutes === d ? "border-teal-500 bg-teal-50 text-teal-700" : "border-gray-200 text-gray-600 hover:border-gray-300"
                       }`}>{d}m</button>
                   ))}
                 </div>
@@ -216,7 +216,7 @@ export default function MeetingTypesPage() {
                 <label className="mb-1.5 block text-sm font-medium text-gray-700">Description</label>
                 <input value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                   placeholder="Brief description for candidates"
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500" />
               </div>
               <div className="sm:col-span-2">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700">Color</label>
@@ -232,7 +232,7 @@ export default function MeetingTypesPage() {
             <div className="mt-5 flex justify-end gap-2">
               <button onClick={() => setEditingId(null)} className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">Cancel</button>
               <button onClick={handleEdit} disabled={!editForm.title || editSaving}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+                className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50">
                 {editSaving ? "Saving..." : "Save Changes"}
               </button>
             </div>
@@ -305,7 +305,7 @@ export default function MeetingTypesPage() {
                 </svg>
               </button>
               <button onClick={() => toggleActive(mt)}
-                className={`relative h-6 w-11 rounded-full transition-colors ${mt.is_active ? "bg-blue-600" : "bg-gray-300"}`}>
+                className={`relative h-6 w-11 rounded-full transition-colors ${mt.is_active ? "bg-teal-600" : "bg-gray-300"}`}>
                 <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${mt.is_active ? "translate-x-5" : "translate-x-0"}`} />
               </button>
             </div>

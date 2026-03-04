@@ -292,7 +292,7 @@ export default function BookingPage() {
               href={meetLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+              className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-teal-700"
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
@@ -327,7 +327,7 @@ export default function BookingPage() {
                 {host?.avatar_url ? (
                   <img src={host.avatar_url} alt="" className="h-12 w-12 rounded-full" />
                 ) : (
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-lg font-semibold text-blue-700">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-100 text-lg font-semibold text-teal-700">
                     {host?.name?.[0]}
                   </div>
                 )}
@@ -419,11 +419,11 @@ export default function BookingPage() {
                           onClick={() => setSelectedDate(dateISO)}
                           className={`aspect-square rounded-full text-sm font-medium transition-all ${
                             isSelected
-                              ? "bg-blue-600 text-white shadow-sm"
+                              ? "bg-teal-600 text-white shadow-sm"
                               : isPast
                               ? "cursor-not-allowed text-gray-300"
                               : isTodayDate
-                              ? "bg-blue-50 text-blue-700 hover:bg-blue-100"
+                              ? "bg-teal-50 text-teal-700 hover:bg-teal-100"
                               : "text-gray-700 hover:bg-gray-100"
                           }`}
                         >
@@ -462,7 +462,7 @@ export default function BookingPage() {
                             setSelectedTime(slot);
                             setStep("form");
                           }}
-                          className="w-full rounded-lg border border-blue-200 px-3 py-2 text-center text-sm font-medium text-blue-700 transition-all hover:border-blue-500 hover:bg-blue-50"
+                          className="w-full rounded-lg border border-blue-200 px-3 py-2 text-center text-sm font-medium text-teal-700 transition-all hover:border-teal-500 hover:bg-teal-50"
                         >
                           {formatTime(slot)}
                         </button>
@@ -481,7 +481,7 @@ export default function BookingPage() {
                 {host?.avatar_url ? (
                   <img src={host.avatar_url} alt="" className="h-12 w-12 rounded-full" />
                 ) : (
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-lg font-semibold text-blue-700">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-100 text-lg font-semibold text-teal-700">
                     {host?.name?.[0]}
                   </div>
                 )}
@@ -536,7 +536,7 @@ export default function BookingPage() {
                     type="text"
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                     placeholder="Your name"
                   />
                 </div>
@@ -546,7 +546,7 @@ export default function BookingPage() {
                     type="email"
                     value={guestEmail}
                     onChange={(e) => setGuestEmail(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                     placeholder="your@email.com"
                   />
                 </div>
@@ -558,7 +558,7 @@ export default function BookingPage() {
                     value={guestNotes}
                     onChange={(e) => setGuestNotes(e.target.value)}
                     rows={3}
-                    className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                     placeholder="Share anything that'll help prepare for our meeting"
                   />
                 </div>

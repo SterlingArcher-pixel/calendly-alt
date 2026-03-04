@@ -109,14 +109,14 @@ export default function TeamPage() {
 
   const roleColors: Record<string, string> = {
     admin: "bg-purple-50 text-purple-700",
-    recruiter: "bg-blue-50 text-blue-700",
+    recruiter: "bg-teal-50 text-teal-700",
     viewer: "bg-gray-100 text-gray-600",
   };
 
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-600 border-t-transparent" />
       </div>
     );
   }
@@ -179,13 +179,13 @@ export default function TeamPage() {
               type="email"
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
-              className="flex-1 rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="flex-1 rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               placeholder="recruiter@example.com"
             />
             <select
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value)}
-              className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             >
               <option value="recruiter">Recruiter</option>
               <option value="admin">Admin</option>
@@ -194,7 +194,7 @@ export default function TeamPage() {
             <button
               onClick={handleInvite}
               disabled={sending || !inviteEmail.trim()}
-              className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-lg bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-50"
             >
               {sending ? "Sending..." : "Send Invite"}
             </button>
@@ -233,7 +233,7 @@ export default function TeamPage() {
                     className="h-10 w-10 rounded-full"
                   />
                 ) : (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-100 text-sm font-semibold text-teal-700">
                     {member.hosts?.name?.[0] || "?"}
                   </div>
                 )}

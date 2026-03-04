@@ -23,7 +23,7 @@ export default function Home() {
       <div className="w-full max-w-sm space-y-8 text-center">
         {/* Logo / Brand */}
         <div>
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-2xl font-bold text-white">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-600 text-2xl font-bold text-white">
             CA
           </div>
           <h1 className="mt-6 text-3xl font-bold tracking-tight">
