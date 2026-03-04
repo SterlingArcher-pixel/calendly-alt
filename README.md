@@ -58,3 +58,4 @@ Five core tables with RLS policies:
 - `availability_rules` — Weekly availability per recruiter
 - `availability_overrides` — Date-specific overrides
 - `bookings` — All scheduled interviews with status tracking
+
