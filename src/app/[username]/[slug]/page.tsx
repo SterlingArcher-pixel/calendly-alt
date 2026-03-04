@@ -78,7 +78,7 @@ export default function BookingPage() {
       const { data: hosts } = await supabase
         .from("hosts")
         .select("*")
-        .ilike("email", `${username}%`);
+        .eq("booking_url_slug", username);
 
       if (!hosts || hosts.length === 0) {
         setError("Host not found");
