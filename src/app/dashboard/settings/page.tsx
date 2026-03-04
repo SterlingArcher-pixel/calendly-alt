@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -13,6 +12,12 @@ export default function SettingsPage() {
     timezone: "America/Denver",
     booking_url_slug: "",
   });
+  const [notifications, setNotifications] = useState([
+    { label: "Email confirmation to candidates", desc: "Send booking confirmation via email", on: true },
+    { label: "Calendar invite", desc: "Auto-create Google Calendar event with Meet link", on: true },
+    { label: "SMS reminders", desc: "24hr + 2hr interview reminders via SMS", on: false },
+    { label: "Cancellation notifications", desc: "Email candidate when interview is cancelled", on: true },
+  ]);
 
   const timezones = [
     "America/New_York", "America/Chicago", "America/Denver",
@@ -24,7 +29,6 @@ export default function SettingsPage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
-
       const { data } = await supabase.from("hosts").select("*").eq("id", user.id).single();
       if (data) {
         setHost(data);
@@ -38,6 +42,10 @@ export default function SettingsPage() {
     }
     load();
   }, []);
+
+  function toggleNotification(index: number) {
+    setNotifications(prev => prev.map((n, i) => i === index ? { ...n, on: !n.on } : n));
+  }
 
   async function handleSave() {
     if (!host) return;
@@ -91,34 +99,23 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700">Display Name</label>
-            <input
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+            <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700">Timezone</label>
-            <select
-              value={form.timezone}
-              onChange={(e) => setForm({ ...form, timezone: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              {timezones.map(tz => (
-                <option key={tz} value={tz}>{tz.replace("_", " ")}</option>
-              ))}
+            <select value={form.timezone} onChange={(e) => setForm({ ...form, timezone: e.target.value })}
+              className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+              {timezones.map(tz => (<option key={tz} value={tz}>{tz.replace("_", " ")}</option>))}
             </select>
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700">Booking URL Slug</label>
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-400">calendly-alt.vercel.app/</span>
-              <input
-                value={form.booking_url_slug}
-                onChange={(e) => setForm({ ...form, booking_url_slug: e.target.value })}
+              <input value={form.booking_url_slug} onChange={(e) => setForm({ ...form, booking_url_slug: e.target.value })}
                 className="flex-1 rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="charlie-fischer"
-              />
+                placeholder="charlie-fischer" />
             </div>
           </div>
         </div>
@@ -128,20 +125,16 @@ export default function SettingsPage() {
       <div className="mb-6 rounded-xl border bg-white p-6">
         <h2 className="mb-4 text-base font-semibold text-gray-900">Notifications</h2>
         <div className="space-y-4">
-          {[
-            { label: "Email confirmation to candidates", desc: "Send booking confirmation via email", on: true },
-            { label: "Calendar invite", desc: "Auto-create Google Calendar event with Meet link", on: true },
-            { label: "SMS reminders", desc: "24hr + 2hr interview reminders via SMS", on: false },
-            { label: "Cancellation notifications", desc: "Email candidate when interview is cancelled", on: true },
-          ].map((item, i) => (
+          {notifications.map((item, i) => (
             <div key={i} className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-900">{item.label}</p>
                 <p className="text-xs text-gray-500">{item.desc}</p>
               </div>
-              <div className={`relative h-6 w-11 rounded-full ${item.on ? "bg-blue-600" : "bg-gray-300"}`}>
+              <button type="button" onClick={() => toggleNotification(i)}
+                className={`relative h-6 w-11 rounded-full transition-colors ${item.on ? "bg-blue-600" : "bg-gray-300"}`}>
                 <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${item.on ? "translate-x-5" : "translate-x-0"}`} />
-              </div>
+              </button>
             </div>
           ))}
         </div>
@@ -166,11 +159,8 @@ export default function SettingsPage() {
             Saved
           </span>
         )}
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"
-        >
+        <button onClick={handleSave} disabled={saving}
+          className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:opacity-50">
           {saving ? "Saving..." : "Save Changes"}
         </button>
       </div>
