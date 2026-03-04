@@ -23,25 +23,10 @@ export default function Sidebar({ host }: { host: any }) {
           <span className="text-base font-semibold text-gray-900">Scheduling Tool</span>
         </div>
         <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-          {navItems.map((item) => {
-            const isActive = item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href);
-            return (
-              <Link key={item.href} href={item.href} className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`}>
-                {item.label}
-              </Link>
-            );
-          })}
+          {navItems.map((item) => { const isActive = item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href); return (<Link key={item.href} href={item.href} className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`}>{item.label}</Link>); })}
         </nav>
         <OrgBadge />
-        <div className="border-t p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">{host?.name?.[0] || "?"}</div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-gray-900">{host?.name || "User"}</p>
-              <p className="truncate text-xs text-gray-500">{host?.email}</p>
-            </div>
-          </div>
-        </div>
+        <div className="border-t p-4"><div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">{host?.name?.[0] || "?"}</div><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-gray-900">{host?.name || "User"}</p><p className="truncate text-xs text-gray-500">{host?.email}</p></div></div></div>
       </div>
     </aside>
   );
