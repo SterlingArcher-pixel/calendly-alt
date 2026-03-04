@@ -26,6 +26,7 @@ export default function MeetingTypesPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: "", description: "", duration_minutes: 30, color: COLORS[0] });
   const [saving, setSaving] = useState(false);
+  const [hostSlug, setHostSlug] = useState("");
 
   useEffect(() => {
     loadTypes();
@@ -43,6 +44,8 @@ export default function MeetingTypesPage() {
       .order("created_at");
 
     setTypes(data || []);
+    const { data: hostData } = await supabase.from("hosts").select("booking_url_slug").eq("id", user.id).single();
+    if (hostData) setHostSlug(hostData.booking_url_slug || "");
     setLoading(false);
   }
 
@@ -211,7 +214,7 @@ export default function MeetingTypesPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/charlie-fischer/${mt.slug}`);
+                  navigator.clipboard.writeText(`${window.location.origin}/${hostSlug}/${mt.slug}`);
                 }}
                 className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
               >
