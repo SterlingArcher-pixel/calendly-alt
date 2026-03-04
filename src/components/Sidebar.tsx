@@ -97,7 +97,7 @@ export default function Sidebar({ host }: { host: any }) {
         {/* Logo */}
         <div className="flex h-16 items-center gap-2.5 border-b px-5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-xs font-bold text-white">
-            CA
+            A
           </div>
           <span className="text-base font-semibold text-gray-900">
             Apploi Scheduling

@@ -24,7 +24,7 @@ export default function MobileHeader({ host }: { host: any }) {
       <div className="flex h-14 items-center justify-between border-b bg-white px-4">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-xs font-bold text-white">
-            CA
+            A
           </div>
           <span className="text-sm font-semibold text-gray-900">
             Apploi Scheduling
