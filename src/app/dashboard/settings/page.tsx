@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function SettingsPage() {
+  const router = useRouter();
   const [host, setHost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -18,6 +20,11 @@ export default function SettingsPage() {
     { label: "SMS reminders", desc: "24hr + 2hr interview reminders via SMS", on: false },
     { label: "Cancellation notifications", desc: "Email candidate when interview is cancelled", on: true },
   ]);
+
+  // Delete account state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   const timezones = [
     "America/New_York", "America/Chicago", "America/Denver",
@@ -59,6 +66,24 @@ export default function SettingsPage() {
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
+  }
+
+  async function handleDeleteAccount() {
+    if (!host || deleteConfirmText !== "DELETE") return;
+    setDeleting(true);
+    const supabase = createClient();
+    const userId = host.id;
+
+    // Cascade delete: bookings → meeting_types → availability_rules → availability_overrides → hosts
+    await supabase.from("bookings").delete().eq("host_id", userId);
+    await supabase.from("meeting_types").delete().eq("host_id", userId);
+    await supabase.from("availability_rules").delete().eq("host_id", userId);
+    await supabase.from("availability_overrides").delete().eq("host_id", userId);
+    await supabase.from("hosts").delete().eq("id", userId);
+
+    // Sign out
+    await supabase.auth.signOut();
+    router.push("/");
   }
 
   if (loading) {
@@ -143,11 +168,50 @@ export default function SettingsPage() {
       {/* Danger zone */}
       <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-6">
         <h2 className="mb-2 text-base font-semibold text-red-900">Danger Zone</h2>
-        <p className="mb-4 text-sm text-red-700">Permanently delete your account and all data.</p>
-        <button className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100">
+        <p className="mb-4 text-sm text-red-700">Permanently delete your account and all associated data including bookings, meeting types, and availability rules.</p>
+        <button onClick={() => setShowDeleteConfirm(true)}
+          className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100">
           Delete Account
         </button>
       </div>
+
+      {/* Delete confirmation modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+              <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+            </div>
+            <h3 className="mb-2 text-center text-lg font-semibold text-gray-900">Delete Your Account?</h3>
+            <p className="mb-4 text-center text-sm text-gray-500">
+              This will permanently delete your profile, all meeting types, availability rules, and booking history. This action cannot be undone.
+            </p>
+            <div className="mb-4">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                Type <span className="font-mono font-bold text-red-600">DELETE</span> to confirm
+              </label>
+              <input
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="DELETE"
+                className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm font-mono focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}
+                className="flex-1 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                Cancel
+              </button>
+              <button onClick={handleDeleteAccount} disabled={deleteConfirmText !== "DELETE" || deleting}
+                className="flex-1 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
+                {deleting ? "Deleting..." : "Delete Account"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Save */}
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t bg-gray-50/80 px-1 py-4 backdrop-blur">
