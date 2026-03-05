@@ -13,14 +13,14 @@ export default async function AnalyticsPage() {
   // All bookings for this host
   const { data: allBookings } = await supabase
     .from("bookings")
-    .select("id, status, starts_at, guest_name, guest_email, meeting_type_id, meeting_types(title, color, duration_minutes)")
+    .select("id, status, starts_at, guest_name, guest_email, meeting_type_id, facility_id, meeting_types(title, color, duration_minutes)")
     .eq("host_id", user.id)
     .order("starts_at", { ascending: false });
 
   // Meeting types
   const { data: meetingTypes } = await supabase
     .from("meeting_types")
-    .select("id, title, color, duration_minutes")
+    .select("id, title, color, duration_minutes, facility_id")
     .eq("host_id", user.id);
 
   return <AnalyticsClient bookings={allBookings || []} meetingTypes={meetingTypes || []} />;

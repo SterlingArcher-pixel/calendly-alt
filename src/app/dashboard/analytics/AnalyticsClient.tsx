@@ -1,5 +1,7 @@
 "use client";
 
+import { useFacility } from "@/contexts/FacilityContext";
+
 interface Booking {
   id: string;
   status: string;
@@ -7,6 +9,7 @@ interface Booking {
   guest_name: string;
   guest_email: string;
   meeting_type_id: string;
+  facility_id: string | null;
   meeting_types: { title: string; color: string; duration_minutes: number } | null;
 }
 
@@ -15,15 +18,26 @@ interface MeetingType {
   title: string;
   color: string;
   duration_minutes: number;
+  facility_id: string | null;
 }
 
 export default function AnalyticsClient({
-  bookings,
-  meetingTypes,
+  bookings: allBookings,
+  meetingTypes: allMeetingTypes,
 }: {
   bookings: Booking[];
   meetingTypes: MeetingType[];
 }) {
+  const { activeFacilityId } = useFacility();
+
+  // Filter by active facility
+  const bookings = activeFacilityId
+    ? allBookings.filter(b => b.facility_id === activeFacilityId)
+    : allBookings;
+  const meetingTypes = activeFacilityId
+    ? allMeetingTypes.filter(mt => mt.facility_id === activeFacilityId || !mt.facility_id)
+    : allMeetingTypes;
+
   const now = new Date();
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 

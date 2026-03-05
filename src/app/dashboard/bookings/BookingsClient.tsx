@@ -1,4 +1,5 @@
 "use client";
+import { useFacility } from "@/contexts/FacilityContext";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -323,6 +324,11 @@ export default function BookingsClient({
   const [editBooking, setEditBooking] = useState<any>(null);
   const [meetingTypes, setMeetingTypes] = useState<any[]>([]);
 
+  const { activeFacilityId } = useFacility();
+  const filteredUpcoming = activeFacilityId ? upcoming.filter((b: any) => b.facility_id === activeFacilityId) : upcoming;
+  const filteredPast = activeFacilityId ? past.filter((b: any) => b.facility_id === activeFacilityId) : past;
+  const filteredCancelled = activeFacilityId ? cancelled.filter((b: any) => b.facility_id === activeFacilityId) : cancelled;
+
   // Load meeting types for the edit dropdown
   useEffect(() => {
     async function loadMeetingTypes() {
@@ -342,12 +348,12 @@ export default function BookingsClient({
   }, []);
 
   const counts: Record<Tab, number> = {
-    upcoming: upcoming.length,
-    past: past.length,
-    cancelled: cancelled.length,
+    upcoming: filteredUpcoming.length,
+    past: filteredPast.length,
+    cancelled: filteredCancelled.length,
   };
   const bookings =
-    tab === "upcoming" ? upcoming : tab === "past" ? past : cancelled;
+    tab === "upcoming" ? filteredUpcoming : tab === "past" ? filteredPast : filteredCancelled;
 
   return (
     <div>
