@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export async function POST(request: NextRequest) {
@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
       starts_at: startsAt.toISOString(),
       ends_at: endsAt.toISOString(),
       timezone: timezone || "America/Denver",
+      facility_id: body.facility_id || null,
       status: "confirmed",
       google_event_id: googleEventId,
       google_meet_link: googleMeetLink,
@@ -97,27 +98,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to create booking" }, { status: 500 });
   }
 
-  // Send confirmation email (fire and forget)
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://calendly-alt.vercel.app";
-  fetch(siteUrl + "/api/send-confirmation", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      guest_name: guest_name,
-      guest_email: guest_email,
-      host_name: host.name,
-      meeting_title: meetingType.title,
-      meeting_date: new Date(startsAt).toLocaleDateString("en-US", {
-        weekday: "long", month: "long", day: "numeric", year: "numeric"
+  // Send confirmation email (fire and forget via Resend directly)
+  const RESEND_KEY = process.env.RESEND_API_KEY;
+  if (RESEND_KEY) {
+    fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_KEY}` },
+      body: JSON.stringify({
+        from: "Apploi Scheduling <onboarding@resend.dev>",
+        to: guest_email,
+        subject: `Confirmed: ${meetingType.title} on ${new Date(startsAt).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}`,
+        html: `<div style="font-family: -apple-system, sans-serif; max-width: 520px; margin: 0 auto;"><div style="background: linear-gradient(135deg, #0B2522 0%, #003D37 100%); border-radius: 12px 12px 0 0; padding: 24px;"><h1 style="margin: 0; color: #fff; font-size: 20px;">Interview Confirmed</h1></div><div style="padding: 24px; border: 1px solid #E5E7EB; border-top: none; border-radius: 0 0 12px 12px;"><p style="margin: 0 0 12px; font-size: 14px; color: #374151;">Hi ${guest_name},</p><p style="margin: 0 0 16px; font-size: 14px; color: #374151;">Your <strong>${meetingType.title}</strong> with <strong>${host.name}</strong> is confirmed.</p><div style="background: #F8F6F3; border-radius: 8px; padding: 16px; margin-bottom: 16px;"><p style="margin: 0 0 4px; font-size: 14px;"><strong>Date:</strong> ${new Date(startsAt).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p><p style="margin: 0 0 4px; font-size: 14px;"><strong>Time:</strong> ${new Date(startsAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} (${meetingType.duration_minutes} min)</p>${googleMeetLink ? `<p style="margin: 0; font-size: 14px;"><strong>Join:</strong> <a href="${googleMeetLink}" style="color: #00A1AB;">${googleMeetLink}</a></p>` : ""}</div><p style="margin: 0; font-size: 12px; color: #9CA3AF; text-align: center;">Sent by Apploi Scheduling</p></div></div>`,
       }),
-      meeting_time: new Date(startsAt).toLocaleTimeString("en-US", {
-        hour: "numeric", minute: "2-digit"
-      }),
-      duration_minutes: meetingType.duration_minutes,
-      meet_link: googleMeetLink,
-      booking_id: booking.id,
-    }),
-  }).catch((e) => console.error("Email send failed:", e));
+    }).catch((e) => console.error("Confirmation email failed:", e));
+  }
 
   return NextResponse.json({
     booking,
