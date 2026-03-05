@@ -15,6 +15,7 @@ type MeetingType = {
 };
 
 type Host = {
+  email: string;
   id: string;
   name: string;
   avatar_url: string;
