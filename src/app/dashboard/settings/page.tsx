@@ -1,4 +1,5 @@
 "use client";
+import GoogleCalendarSection from "./GoogleCalendarSection";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -146,6 +147,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      <GoogleCalendarSection />
       {/* Notifications */}
       <div className="mb-6 rounded-xl border bg-white p-6">
         <h2 className="mb-4 text-base font-semibold text-gray-900">Notifications</h2>
