@@ -3,7 +3,7 @@ import { generateICS, downloadICS } from "@/lib/ics";
 
 import { createClient } from "@/lib/supabase/client";
 import { useParams } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 
 type MeetingType = {
   id: string;
@@ -44,6 +44,7 @@ export default function BookingPage() {
   const [guestEmail, setGuestEmail] = useState("");
   const [guestNotes, setGuestNotes] = useState("");
   const [booking, setBooking] = useState(false);
+  const bookingRef = React.useRef(false);
   const [meetLink, setMeetLink] = useState("");
   const [bookingId, setBookingId] = useState("");
 
@@ -194,6 +195,8 @@ export default function BookingPage() {
   };
 
   const handleBook = async () => {
+    if (bookingRef.current) return;
+    bookingRef.current = true;
     if (!guestName || !guestEmail) return;
     setBooking(true);
 
@@ -216,6 +219,7 @@ export default function BookingPage() {
       const data = await res.json();
       if (data.error) {
         alert(data.error);
+      bookingRef.current = false;
         setBooking(false);
         return;
       }
@@ -224,6 +228,7 @@ export default function BookingPage() {
       setStep("confirmed");
     } catch {
       alert("Something went wrong. Please try again.");
+    bookingRef.current = false;
     }
     setBooking(false);
   };
