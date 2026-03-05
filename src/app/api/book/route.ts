@@ -1,3 +1,6 @@
+import { checkRateLimit } from "@/lib/rate-limit";
+import { sanitizeText, sanitizeEmail, sanitizeNotes, sanitizePhone } from "@/lib/sanitize";
+import { logAudit } from "@/lib/audit";
 import { createClient } from "@supabase/supabase-js";
 import { refreshAccessToken, createCalendarEvent } from "@/lib/google-calendar";
 import { NextRequest, NextResponse } from "next/server";
@@ -9,10 +12,40 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { host_id, meeting_type_id, guest_name, guest_email, guest_notes, date, time, timezone } = body;
+  // Rate limit by IP
+  const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const rateCheck = checkRateLimit(clientIp, 5, 60); // 5 bookings per minute per IP
+  if (!rateCheck.success) {
+    return NextResponse.json(
+      { error: "Too many booking requests. Please try again in a moment." },
+      { status: 429, headers: { "Retry-After": String(rateCheck.resetIn) } }
+    );
+  }
+
+  // Sanitize all inputs
+  const host_id = body.host_id;
+  const meeting_type_id = body.meeting_type_id;
+  const guest_name = sanitizeText(body.guest_name, 100);
+  const guest_email = sanitizeEmail(body.guest_email);
+  const guest_notes = sanitizeNotes(body.guest_notes);
+  const guest_phone = sanitizePhone(body.guest_phone);
+  const date = body.date;
+  const time = body.time;
+  const timezone = body.timezone;
 
   if (!host_id || !meeting_type_id || !guest_name || !guest_email || !date || !time) {
-    return NextResponse.json({
+    // Audit log
+  logAudit({
+    action: "booking.created",
+    resourceType: "bookings",
+    resourceId: booking.id,
+    facilityId: body.facility_id || null,
+    details: { guest_email, meeting_type: meetingType.title, calendar_synced: !!googleEventId },
+    ipAddress: clientIp,
+    userAgent: request.headers.get("user-agent") || null,
+  });
+
+  return NextResponse.json({
     calendar_synced: !!googleEventId, error: "Missing required fields" }, { status: 400 });
   }
 

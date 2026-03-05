@@ -1,7 +1,13 @@
+import { checkRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
+  const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const rateCheck = checkRateLimit("avail:" + clientIp, 30, 60);
+  if (!rateCheck.success) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
   const { searchParams } = new URL(request.url);
   const hostId = searchParams.get("host_id");
   const meetingTypeId = searchParams.get("meeting_type_id");
