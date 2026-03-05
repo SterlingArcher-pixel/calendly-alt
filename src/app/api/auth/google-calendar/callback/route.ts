@@ -17,7 +17,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${APP_URL}/dashboard/settings?calendar=error`);
   }
 
-  // Exchange code for tokens
   const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -36,10 +35,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${APP_URL}/dashboard/settings?calendar=error`);
   }
 
-  // Save tokens to this user's host record
+  // Only store refresh token — access tokens expire in 1hr and are fetched fresh each use
   await supabase.from("hosts").update({
     google_refresh_token: tokens.refresh_token,
-    google_access_token: tokens.access_token,
   }).eq("id", userId);
 
   return NextResponse.redirect(`${APP_URL}/dashboard/settings?calendar=connected`);
