@@ -1,17 +1,22 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
+// Service role key — required to create auth users
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const { token, name, password } = body;
 
-  if (!token || !name) {
+  if (!token || !name || !password) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  if (password.length < 8) {
+    return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
   }
 
   // Get the invitation
@@ -26,51 +31,58 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid or expired invitation" }, { status: 404 });
   }
 
-  // Check if expired
   if (new Date(invitation.expires_at) < new Date()) {
-    await supabase
-      .from("invitations")
-      .update({ status: "expired" })
-      .eq("id", invitation.id);
+    await supabase.from("invitations").update({ status: "expired" }).eq("id", invitation.id);
     return NextResponse.json({ error: "Invitation has expired" }, { status: 410 });
   }
 
-  // Check if host already exists
-  let hostId: string;
-  const { data: existingHost } = await supabase
-    .from("hosts")
-    .select("id")
-    .eq("email", invitation.email)
-    .single();
+  // Check if auth user already exists
+  const { data: existingUsers } = await supabase.auth.admin.listUsers();
+  const existingAuthUser = existingUsers?.users?.find(u => u.email === invitation.email);
 
-  if (existingHost) {
-    hostId = existingHost.id;
+  let authUserId: string;
+
+  if (existingAuthUser) {
+    // User already has an auth account — just use their ID
+    authUserId = existingAuthUser.id;
   } else {
-    // Create new host record
-    const { data: newHost, error: hostError } = await supabase
-      .from("hosts")
-      .insert({
-        name,
-        email: invitation.email,
-        timezone: "America/Denver",
-        default_organization_id: invitation.organization_id,
-      })
-      .select()
-      .single();
+    // Create real Supabase auth account with email + password
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email: invitation.email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name: name },
+    });
 
-    if (hostError) {
-      console.error("Host creation error:", hostError);
+    if (authError || !authData.user) {
+      console.error("Auth creation error:", authError);
       return NextResponse.json({ error: "Failed to create account" }, { status: 500 });
     }
-    hostId = newHost.id;
+    authUserId = authData.user.id;
   }
 
-  // Add to org
+  // Upsert hosts record using the auth user ID
+  const { error: hostError } = await supabase
+    .from("hosts")
+    .upsert({
+      id: authUserId,
+      name,
+      email: invitation.email,
+      timezone: "America/Denver",
+      default_organization_id: invitation.organization_id,
+    }, { onConflict: "id" });
+
+  if (hostError) {
+    console.error("Host upsert error:", hostError);
+    return NextResponse.json({ error: "Failed to create profile" }, { status: 500 });
+  }
+
+  // Add to org (ignore duplicate)
   const { error: memberError } = await supabase
     .from("org_members")
     .insert({
       organization_id: invitation.organization_id,
-      host_id: hostId,
+      host_id: authUserId,
       role: invitation.role,
       invited_by: invitation.invited_by,
     });
@@ -80,14 +92,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to join team" }, { status: 500 });
   }
 
-  // Mark invitation as accepted
-  await supabase
-    .from("invitations")
-    .update({ status: "accepted" })
-    .eq("id", invitation.id);
+  // Mark invitation accepted
+  await supabase.from("invitations").update({ status: "accepted" }).eq("id", invitation.id);
 
-  return NextResponse.json({
-    success: true,
-    organization: invitation.organizations,
-  });
+  return NextResponse.json({ success: true, organization: invitation.organizations });
 }

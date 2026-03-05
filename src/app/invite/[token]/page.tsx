@@ -1,18 +1,17 @@
 "use client";
-
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AcceptInvitePage() {
   const params = useParams();
-  const router = useRouter();
   const token = params.token as string;
 
   const [invitation, setInvitation] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [accepting, setAccepting] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [orgName, setOrgName] = useState("");
@@ -45,17 +44,24 @@ export default function AcceptInvitePage() {
   }, [token]);
 
   async function handleAccept() {
-    if (!name.trim()) return;
+    if (!name.trim() || !password || !confirmPassword) return;
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    setError("");
     setAccepting(true);
-
     try {
       const res = await fetch("/api/team/accept", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, name: name.trim() }),
+        body: JSON.stringify({ token, name: name.trim(), password }),
       });
       const data = await res.json();
-
       if (data.success) {
         setAccepted(true);
         setOrgName(data.organization?.name || "the team");
@@ -71,7 +77,7 @@ export default function AcceptInvitePage() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-600 border-t-transparent" />
       </div>
     );
   }
@@ -87,20 +93,20 @@ export default function AcceptInvitePage() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Welcome to {orgName}!</h1>
           <p className="mt-2 text-gray-500">
-            You've successfully joined the team. You can now sign in to start scheduling interviews.
+            Your account is set up. Sign in with your email and the password you just created.
           </p>
           <a
-            href="/dashboard"
-            className="mt-6 inline-block rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+            href="/"
+            className="mt-6 inline-block rounded-xl bg-teal-600 px-6 py-3 text-sm font-semibold text-white hover:bg-teal-700"
           >
-            Go to Dashboard
+            Sign In
           </a>
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error && !invitation) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
         <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-sm">
@@ -120,22 +126,18 @@ export default function AcceptInvitePage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-            <span className="text-lg font-bold text-blue-600">ST</span>
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-teal-100">
+            <span className="text-lg font-bold text-teal-700">A</span>
           </div>
           <h1 className="text-xl font-bold text-gray-900">Join {invitation?.organizations?.name}</h1>
           <p className="mt-1 text-sm text-gray-500">
-            You've been invited as a <span className="font-medium text-gray-700">{invitation?.role}</span>
+            You have been invited as a{" "}
+            <span className="font-medium text-gray-700">{invitation?.role}</span>
           </p>
         </div>
 
-        <div className="mb-6 rounded-xl bg-blue-50 p-4">
-          <div className="flex items-center gap-3">
-            <svg className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-            </svg>
-            <span className="text-sm text-blue-700">{invitation?.email}</span>
-          </div>
+        <div className="mb-6 rounded-xl bg-teal-50 px-4 py-3">
+          <p className="text-sm text-teal-800 font-medium">{invitation?.email}</p>
         </div>
 
         <div className="space-y-4">
@@ -145,23 +147,42 @@ export default function AcceptInvitePage() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter your full name"
+              className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              placeholder="Sarah Chen"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Create Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              placeholder="At least 8 characters"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Confirm Password</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              placeholder="Repeat your password"
             />
           </div>
 
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
           <button
             onClick={handleAccept}
-            disabled={accepting || !name.trim()}
-            className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+            disabled={accepting || !name.trim() || !password || !confirmPassword}
+            className="w-full rounded-xl bg-teal-600 py-3 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-50"
           >
-            {accepting ? "Joining..." : "Accept & Join Team"}
+            {accepting ? "Creating account..." : "Accept & Create Account"}
           </button>
         </div>
-
-        <p className="mt-4 text-center text-xs text-gray-400">
-          Powered by Scheduling Tool
-        </p>
+        <p className="mt-4 text-center text-xs text-gray-400">Powered by Apploi Scheduling</p>
       </div>
     </div>
   );
