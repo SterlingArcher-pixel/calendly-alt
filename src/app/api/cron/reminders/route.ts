@@ -35,12 +35,9 @@ function buildVars(booking: any, host: any, mt: any, facility: any): Record<stri
   };
 }
 
-// --- Email builder (wraps template in branded layout) ---
 function buildEmailHtml(subject: string, bodyTemplate: string, vars: Record<string, string>): string {
   const body = replaceVars(bodyTemplate, vars);
-  // Convert newlines to <br> if body doesn't contain HTML tags
   const formattedBody = body.includes("<") ? body : body.replace(/\n/g, "<br>");
-
   return `
 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 520px; margin: 0 auto;">
   <div style="background: linear-gradient(135deg, #0B2522 0%, #003D37 100%); border-radius: 12px 12px 0 0; padding: 24px;">
@@ -58,62 +55,22 @@ function buildEmailHtml(subject: string, bodyTemplate: string, vars: Record<stri
 </div>`;
 }
 
-// --- Send email ---
 async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_KEY}`,
-      },
-      body: JSON.stringify({
-        from: "Apploi Scheduling <onboarding@resend.dev>",
-        to,
-        subject,
-        html,
-      }),
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_KEY}` },
+      body: JSON.stringify({ from: "Apploi Scheduling <onboarding@resend.dev>", to, subject, html }),
     });
     return res.ok;
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
-// --- Send SMS (placeholder — swap in Twilio/etc.) ---
 async function sendSms(to: string, body: string): Promise<boolean> {
-  // TODO: Integrate Twilio or other SMS provider
-  // For now, log that SMS would be sent
   console.log(`[SMS] Would send to ${to}: ${body.substring(0, 100)}...`);
   return true;
 }
 
-// --- Log execution ---
-async function logExecution(
-  workflowId: string,
-  bookingId: string,
-  hostId: string,
-  workflowType: string,
-  recipientEmail: string,
-  recipientName: string,
-  channel: string,
-  status: string,
-  errorMessage?: string
-) {
-  await supabase.from("workflow_logs").insert({
-    workflow_id: workflowId,
-    booking_id: bookingId,
-    host_id: hostId,
-    workflow_type: workflowType,
-    recipient_email: recipientEmail,
-    recipient_name: recipientName,
-    channel,
-    status,
-    error_message: errorMessage || null,
-  });
-}
-
-// --- Convert trigger to milliseconds ---
 function triggerToMs(amount: number, unit: string): number {
   switch (unit) {
     case "minutes": return amount * 60 * 1000;
@@ -121,26 +78,6 @@ function triggerToMs(amount: number, unit: string): number {
     case "days": return amount * 24 * 60 * 60 * 1000;
     default: return amount * 60 * 60 * 1000;
   }
-}
-
-interface Workflow {
-  id: string;
-  host_id: string;
-  workflow_type: string;
-  name: string;
-  is_enabled: boolean;
-  email_subject: string;
-  email_body_template: string;
-  sms_body: string | null;
-  trigger_type: string;       // 'before' | 'after'
-  trigger_amount: number;
-  trigger_unit: string;       // 'minutes' | 'hours' | 'days'
-  channel: string;            // 'email' | 'sms' | 'both'
-  category: string;
-  meeting_type_id: string | null;
-  facility_id: string | null;
-  // Legacy field (kept for backward compat)
-  trigger_hours_before: number | null;
 }
 
 export async function POST(req: NextRequest) {
@@ -156,162 +93,200 @@ export async function POST(req: NextRequest) {
   let skipped = 0;
   let retried = 0;
 
-  // --- RETRY: Re-process recently failed sends (last 24h) ---
-  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-  const { data: failedLogs } = await supabase
-    .from("workflow_logs")
-    .select("*, workflows(*), bookings(*, meeting_types(title, duration_minutes, color), facilities(id, name)), hosts(*)")
-    .eq("status", "failed")
-    .gte("created_at", oneDayAgo)
-    .limit(20);
-
-  if (failedLogs) {
-    for (const log of failedLogs) {
-      if (!log.workflows?.is_enabled || !log.bookings || !log.hosts) continue;
-      const wf = log.workflows;
-      const booking = log.bookings;
-      const host = log.hosts;
-      const mt = booking.meeting_types as any;
-      const facility = booking.facilities as any;
-      const vars = buildVars(booking, host, mt, facility);
-      const subject = wf.email_subject || "Interview Reminder — {{meeting_type}}";
-      const bodyTemplate = wf.email_body_template || "Hi {{guest_name}},\n\nYour {{meeting_type}} is scheduled for {{date}} at {{time}}.";
-
-      let retrySent = false;
-      if (log.channel === "email" || !log.channel) {
-        const html = buildEmailHtml(subject, bodyTemplate, vars);
-        const finalSubject = replaceVars(subject, vars);
-        retrySent = await sendEmail(booking.guest_email, finalSubject, html);
-      } else if (log.channel === "sms" && booking.guest_phone) {
-        const smsTemplate = wf.sms_body || "Reminder: {{meeting_type}} on {{date}} at {{time}}.";
-        retrySent = await sendSms(booking.guest_phone, replaceVars(smsTemplate, vars));
-      }
-
-      if (retrySent) {
-        await supabase.from("workflow_logs").update({ status: "sent", sent_at: new Date().toISOString(), error_message: "Retried successfully" }).eq("id", log.id);
-        retried++;
-      }
-    }
-  }
-
-
-  // Get all active workflows
+  // ==============================================
+  // BATCH QUERY 1: All active workflows (one query)
+  // ==============================================
   const { data: allWorkflows } = await supabase
     .from("workflows")
     .select("*")
     .eq("is_enabled", true);
 
   if (!allWorkflows || allWorkflows.length === 0) {
-    return NextResponse.json({ sentEmail: 0, sentSms: 0, skipped: 0, message: "No active workflows" });
+    return NextResponse.json({ sentEmail: 0, sentSms: 0, skipped: 0, retried: 0, message: "No active workflows" });
   }
 
-  // Group workflows by host
-  const hostWorkflows: Record<string, Workflow[]> = {};
-  for (const wf of allWorkflows as Workflow[]) {
-    if (!hostWorkflows[wf.host_id]) hostWorkflows[wf.host_id] = [];
-    hostWorkflows[wf.host_id].push(wf);
+  const hostIds = [...new Set(allWorkflows.map(w => w.host_id))];
+
+  // ==============================================
+  // BATCH QUERY 2: All hosts in one query
+  // ==============================================
+  const { data: allHosts } = await supabase
+    .from("hosts")
+    .select("*")
+    .in("id", hostIds);
+
+  const hostMap = new Map((allHosts || []).map(h => [h.id, h]));
+
+  // ==============================================
+  // BATCH QUERY 3: All relevant bookings in one query
+  //   (upcoming + recent for after-triggers)
+  // ==============================================
+  const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
+  const sevenDaysAhead = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  const { data: allBookings } = await supabase
+    .from("bookings")
+    .select("*, meeting_types(id, title, duration_minutes, color), facilities(id, name)")
+    .in("host_id", hostIds)
+    .in("status", ["confirmed", "rescheduled", "completed"])
+    .gte("starts_at", twoDaysAgo.toISOString())
+    .lte("starts_at", sevenDaysAhead.toISOString())
+    .order("starts_at");
+
+  if (!allBookings || allBookings.length === 0) {
+    return NextResponse.json({ sentEmail: 0, sentSms: 0, skipped: 0, retried: 0, message: "No bookings in window" });
   }
 
-  for (const [hostId, workflows] of Object.entries(hostWorkflows)) {
-    // Fetch host info
-    const { data: host } = await supabase
-      .from("hosts")
-      .select("*")
-      .eq("id", hostId)
-      .single();
+  // ==============================================
+  // BATCH QUERY 4: All recent sent logs (dedup check)
+  //   Instead of checking per-workflow-per-booking
+  // ==============================================
+  const workflowIds = allWorkflows.map(w => w.id);
+  const bookingIds = allBookings.map(b => b.id);
 
-    // Fetch upcoming + recent bookings (for both before and after triggers)
-    const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
-    const { data: bookings } = await supabase
-      .from("bookings")
-      .select("*, meeting_types(id, title, duration_minutes, color), facilities(id, name)")
-      .eq("host_id", hostId)
-      .in("status", ["confirmed", "rescheduled", "completed"])
-      .gte("starts_at", twoDaysAgo.toISOString())
-      .order("starts_at");
+  const { data: sentLogs } = await supabase
+    .from("workflow_logs")
+    .select("workflow_id, booking_id")
+    .in("workflow_id", workflowIds)
+    .in("booking_id", bookingIds)
+    .eq("status", "sent");
 
-    if (!bookings) continue;
+  // Build a Set for O(1) dedup lookups
+  const sentSet = new Set(
+    (sentLogs || []).map(l => `${l.workflow_id}:${l.booking_id}`)
+  );
 
-    for (const wf of workflows) {
-      // Determine effective trigger amount/unit
-      const triggerAmount = wf.trigger_amount ?? wf.trigger_hours_before ?? 24;
-      const triggerUnit = wf.trigger_unit || "hours";
-      const triggerType = wf.trigger_type || "before";
-      const channel = wf.channel || "email";
-      const triggerMs = triggerToMs(triggerAmount, triggerUnit);
+  // ==============================================
+  // BATCH QUERY 5: Retry failed sends from last 24h
+  // ==============================================
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: failedLogs } = await supabase
+    .from("workflow_logs")
+    .select("id, workflow_id, booking_id, channel, recipient_email, recipient_name, workflows(*, host_id), bookings(*, meeting_types(title, duration_minutes, color), facilities(id, name))")
+    .eq("status", "failed")
+    .gte("created_at", oneDayAgo)
+    .limit(20);
 
-      for (const booking of bookings) {
-        const startsAt = new Date(booking.starts_at);
-        const endsAt = new Date(booking.ends_at || startsAt.getTime() + (booking.meeting_types?.duration_minutes || 30) * 60 * 1000);
-        const mt = booking.meeting_types as any;
-        const facility = booking.facilities as any;
+  // ==============================================
+  // PROCESS: Loop workflows × bookings (no more DB calls inside)
+  // ==============================================
+  const bookingsByHost = new Map<string, typeof allBookings>();
+  for (const b of allBookings) {
+    const list = bookingsByHost.get(b.host_id) || [];
+    list.push(b);
+    bookingsByHost.set(b.host_id, list);
+  }
 
-        // Check meeting type filter
-        if (wf.meeting_type_id && wf.meeting_type_id !== mt?.id) continue;
-        // Check facility filter
-        if (wf.facility_id && wf.facility_id !== booking.facility_id) continue;
-        // Skip cancelled bookings for before-triggers
-        if (triggerType === "before" && booking.status === "cancelled") continue;
+  for (const wf of allWorkflows) {
+    const host = hostMap.get(wf.host_id);
+    if (!host) continue;
 
-        // Calculate the trigger fire time
-        let fireTime: Date;
-        if (triggerType === "before") {
-          fireTime = new Date(startsAt.getTime() - triggerMs);
-        } else {
-          // "after" triggers fire relative to end time
-          fireTime = new Date(endsAt.getTime() + triggerMs);
-        }
+    const hostBookings = bookingsByHost.get(wf.host_id) || [];
+    const triggerAmount = wf.trigger_amount ?? wf.trigger_hours_before ?? 24;
+    const triggerUnit = wf.trigger_unit || "hours";
+    const triggerType = wf.trigger_type || "before";
+    const channel = wf.channel || "email";
+    const triggerMs = triggerToMs(triggerAmount, triggerUnit);
 
-        // Check if we're in the send window:
-        // Fire time should be in the past (trigger is due) but not more than 25 hours ago
-        const timeSinceFire = now.getTime() - fireTime.getTime();
-        if (timeSinceFire < 0 || timeSinceFire > 25 * 60 * 60 * 1000) continue;
+    for (const booking of hostBookings) {
+      const startsAt = new Date(booking.starts_at);
+      const endsAt = new Date(booking.ends_at || startsAt.getTime() + (booking.meeting_types?.duration_minutes || 30) * 60 * 1000);
+      const mt = booking.meeting_types as any;
+      const facility = booking.facilities as any;
 
-        // Check if already sent (look in workflow_logs)
-        const { data: existing } = await supabase
-          .from("workflow_logs")
-          .select("id")
-          .eq("workflow_id", wf.id)
-          .eq("booking_id", booking.id)
-          .in("status", ["sent"])
-          .limit(1);
+      // Check meeting type filter
+      if (wf.meeting_type_id && wf.meeting_type_id !== mt?.id) continue;
+      // Check facility filter
+      if (wf.facility_id && wf.facility_id !== booking.facility_id) continue;
+      // Skip cancelled for before-triggers
+      if (triggerType === "before" && booking.status === "cancelled") continue;
 
-        if (existing && existing.length > 0) {
-          skipped++;
-          continue;
-        }
+      // Calculate fire time
+      const fireTime = triggerType === "before"
+        ? new Date(startsAt.getTime() - triggerMs)
+        : new Date(endsAt.getTime() + triggerMs);
 
-        // Build template variables
-        const vars = buildVars(booking, host, mt, facility);
+      // Check send window (due but not older than 25h)
+      const timeSinceFire = now.getTime() - fireTime.getTime();
+      if (timeSinceFire < 0 || timeSinceFire > 25 * 60 * 60 * 1000) continue;
 
-        // Send based on channel
-        const subject = wf.email_subject || `Interview ${triggerType === "before" ? "Reminder" : "Follow-up"} — {{meeting_type}}`;
-        const bodyTemplate = wf.email_body_template || `Hi {{guest_name}},\n\nYour {{meeting_type}} is scheduled for {{date}} at {{time}} with {{host_name}}.\n\nBest regards,\n{{host_name}}`;
+      // Dedup check (O(1) Set lookup instead of DB query)
+      const dedupKey = `${wf.id}:${booking.id}`;
+      if (sentSet.has(dedupKey)) { skipped++; continue; }
 
-        if (channel === "email" || channel === "both") {
-          const html = buildEmailHtml(subject, bodyTemplate, vars);
-          const finalSubject = replaceVars(subject, vars);
-          const sent = await sendEmail(booking.guest_email, finalSubject, html);
-          await logExecution(wf.id, booking.id, hostId, wf.workflow_type || wf.name || "custom", booking.guest_email, booking.guest_name, "email", sent ? "sent" : "failed");
-          if (sent) sentEmail++;
-        }
+      // Build vars and send
+      const vars = buildVars(booking, host, mt, facility);
+      const subject = wf.email_subject || `Interview ${triggerType === "before" ? "Reminder" : "Follow-up"} — {{meeting_type}}`;
+      const bodyTemplate = wf.email_body_template || `Hi {{guest_name}},\n\nYour {{meeting_type}} is scheduled for {{date}} at {{time}} with {{host_name}}.`;
+      const wfType = wf.workflow_type || wf.name || "custom";
 
-        if ((channel === "sms" || channel === "both") && booking.guest_phone) {
-          const smsTemplate = wf.sms_body || `Hi {{guest_name}}, reminder: {{meeting_type}} on {{date}} at {{time}}.`;
-          const smsText = replaceVars(smsTemplate, vars);
-          const sent = await sendSms(booking.guest_phone, smsText);
-          await logExecution(wf.id, booking.id, hostId, wf.workflow_type || wf.name || "custom", booking.guest_email, booking.guest_name, "sms", sent ? "sent" : "failed");
-          if (sent) sentSms++;
-        }
+      if (channel === "email" || channel === "both") {
+        const html = buildEmailHtml(subject, bodyTemplate, vars);
+        const finalSubject = replaceVars(subject, vars);
+        const sent = await sendEmail(booking.guest_email, finalSubject, html);
+        await supabase.from("workflow_logs").insert({
+          workflow_id: wf.id, booking_id: booking.id, host_id: wf.host_id,
+          workflow_type: wfType, recipient_email: booking.guest_email,
+          recipient_name: booking.guest_name, channel: "email",
+          status: sent ? "sent" : "failed",
+        });
+        if (sent) { sentEmail++; sentSet.add(dedupKey); }
+      }
+
+      if ((channel === "sms" || channel === "both") && booking.guest_phone) {
+        const smsTemplate = wf.sms_body || `Hi {{guest_name}}, reminder: {{meeting_type}} on {{date}} at {{time}}.`;
+        const smsText = replaceVars(smsTemplate, vars);
+        const sent = await sendSms(booking.guest_phone, smsText);
+        await supabase.from("workflow_logs").insert({
+          workflow_id: wf.id, booking_id: booking.id, host_id: wf.host_id,
+          workflow_type: wfType, recipient_email: booking.guest_email,
+          recipient_name: booking.guest_name, channel: "sms",
+          status: sent ? "sent" : "failed",
+        });
+        if (sent) sentSms++;
+      }
+    }
+  }
+
+  // ==============================================
+  // RETRY: Process failed sends
+  // ==============================================
+  if (failedLogs) {
+    for (const log of failedLogs) {
+      const wf = log.workflows as any;
+      const booking = log.bookings as any;
+      if (!wf?.is_enabled || !booking) continue;
+
+      const host = hostMap.get(wf.host_id);
+      if (!host) continue;
+
+      const mt = booking.meeting_types as any;
+      const facility = booking.facilities as any;
+      const vars = buildVars(booking, host, mt, facility);
+      const subject = wf.email_subject || "Interview Reminder — {{meeting_type}}";
+      const bodyTemplate = wf.email_body_template || "Hi {{guest_name}},\\n\\nReminder about your {{meeting_type}}.";
+
+      let retrySent = false;
+      if (log.channel === "email" || !log.channel) {
+        const html = buildEmailHtml(subject, bodyTemplate, vars);
+        retrySent = await sendEmail(log.recipient_email, replaceVars(subject, vars), html);
+      } else if (log.channel === "sms" && booking.guest_phone) {
+        const smsTemplate = wf.sms_body || "Reminder: {{meeting_type}} on {{date}} at {{time}}.";
+        retrySent = await sendSms(booking.guest_phone, replaceVars(smsTemplate, vars));
+      }
+
+      if (retrySent) {
+        await supabase.from("workflow_logs").update({
+          status: "sent", sent_at: new Date().toISOString(), error_message: "Retried successfully"
+        }).eq("id", log.id);
+        retried++;
       }
     }
   }
 
   return NextResponse.json({
-    sentEmail,
-    sentSms,
-    skipped,
-    retried,
+    sentEmail, sentSms, skipped, retried,
+    queriesUsed: 5,
     processedAt: now.toISOString(),
   });
 }
