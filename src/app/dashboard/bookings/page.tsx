@@ -1,6 +1,7 @@
 import BookingsClient from "./BookingsClient";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 export default async function BookingsPage() {
   const supabase = await createClient();
@@ -9,7 +10,7 @@ export default async function BookingsPage() {
 
   const now = new Date().toISOString();
 
-  // Parallel queries instead of sequential
+  // Parallel queries with limits
   const [upcomingRes, pastRes, cancelledRes] = await Promise.all([
     supabase
       .from("bookings")
@@ -17,7 +18,8 @@ export default async function BookingsPage() {
       .eq("host_id", user.id)
       .in("status", ["confirmed", "rescheduled"])
       .gte("starts_at", now)
-      .order("starts_at"),
+      .order("starts_at")
+      .limit(50),
     supabase
       .from("bookings")
       .select("*, meeting_types(title, color, duration_minutes)")

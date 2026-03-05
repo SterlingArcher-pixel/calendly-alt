@@ -12,7 +12,8 @@ export async function POST(request: NextRequest) {
   const { host_id, meeting_type_id, guest_name, guest_email, guest_notes, date, time, timezone } = body;
 
   if (!host_id || !meeting_type_id || !guest_name || !guest_email || !date || !time) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    return NextResponse.json({
+    calendar_synced: !!googleEventId, error: "Missing required fields" }, { status: 400 });
   }
 
   // Get meeting type
@@ -20,7 +21,8 @@ export async function POST(request: NextRequest) {
     .from("meeting_types").select("*").eq("id", meeting_type_id).single();
 
   if (!meetingType) {
-    return NextResponse.json({ error: "Meeting type not found" }, { status: 404 });
+    return NextResponse.json({
+    calendar_synced: !!googleEventId, error: "Meeting type not found" }, { status: 404 });
   }
 
   // Get host
@@ -28,7 +30,8 @@ export async function POST(request: NextRequest) {
     .from("hosts").select("*").eq("id", host_id).single();
 
   if (!host) {
-    return NextResponse.json({ error: "Host not found" }, { status: 404 });
+    return NextResponse.json({
+    calendar_synced: !!googleEventId, error: "Host not found" }, { status: 404 });
   }
 
   // Build timestamps
@@ -43,7 +46,8 @@ export async function POST(request: NextRequest) {
     .lt("starts_at", endsAt.toISOString()).gt("ends_at", startsAt.toISOString());
 
   if (conflicts && conflicts.length > 0) {
-    return NextResponse.json({ error: "This time slot is no longer available" }, { status: 409 });
+    return NextResponse.json({
+    calendar_synced: !!googleEventId, error: "This time slot is no longer available" }, { status: 409 });
   }
 
   // Try to create Google Calendar event
@@ -95,7 +99,8 @@ export async function POST(request: NextRequest) {
 
   if (error) {
     console.error("Booking error:", error);
-    return NextResponse.json({ error: "Failed to create booking" }, { status: 500 });
+    return NextResponse.json({
+    calendar_synced: !!googleEventId, error: "Failed to create booking" }, { status: 500 });
   }
 
   // Send confirmation email (fire and forget via Resend directly)
@@ -114,6 +119,7 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json({
+    calendar_synced: !!googleEventId,
     booking,
     booking_id: booking.id,
     meet_link: googleMeetLink,

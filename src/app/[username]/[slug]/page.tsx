@@ -47,6 +47,7 @@ export default function BookingPage() {
   const bookingRef = React.useRef(false);
   const [meetLink, setMeetLink] = useState("");
   const [bookingId, setBookingId] = useState("");
+  const [calendarSynced, setCalendarSynced] = useState(true);
 
   // Timezone detection
   const [guestTimezone, setGuestTimezone] = useState("");
@@ -225,6 +226,7 @@ export default function BookingPage() {
       }
       if (data.meet_link) setMeetLink(data.meet_link);
       if (data.booking_id) setBookingId(data.booking_id);
+      if (data.calendar_synced === false) setCalendarSynced(false);
       setStep("confirmed");
     } catch {
       alert("Something went wrong. Please try again.");
@@ -262,6 +264,11 @@ export default function BookingPage() {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">You&apos;re booked!</h1>
+            {!calendarSynced && (
+              <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 px-4 py-2 text-sm text-amber-700">
+                Note: Calendar invite could not be sent automatically. Please add this to your calendar manually.
+              </div>
+            )}
           <p className="mt-2 text-gray-500">
             A calendar invitation has been sent to{" "}
             <span className="font-medium text-gray-700">{guestEmail}</span>

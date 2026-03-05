@@ -154,6 +154,46 @@ export async function POST(req: NextRequest) {
   let sentEmail = 0;
   let sentSms = 0;
   let skipped = 0;
+  let retried = 0;
+
+  // --- RETRY: Re-process recently failed sends (last 24h) ---
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: failedLogs } = await supabase
+    .from("workflow_logs")
+    .select("*, workflows(*), bookings(*, meeting_types(title, duration_minutes, color), facilities(id, name)), hosts(*)")
+    .eq("status", "failed")
+    .gte("created_at", oneDayAgo)
+    .limit(20);
+
+  if (failedLogs) {
+    for (const log of failedLogs) {
+      if (!log.workflows?.is_enabled || !log.bookings || !log.hosts) continue;
+      const wf = log.workflows;
+      const booking = log.bookings;
+      const host = log.hosts;
+      const mt = booking.meeting_types as any;
+      const facility = booking.facilities as any;
+      const vars = buildVars(booking, host, mt, facility);
+      const subject = wf.email_subject || "Interview Reminder — {{meeting_type}}";
+      const bodyTemplate = wf.email_body_template || "Hi {{guest_name}},\n\nYour {{meeting_type}} is scheduled for {{date}} at {{time}}.";
+
+      let retrySent = false;
+      if (log.channel === "email" || !log.channel) {
+        const html = buildEmailHtml(subject, bodyTemplate, vars);
+        const finalSubject = replaceVars(subject, vars);
+        retrySent = await sendEmail(booking.guest_email, finalSubject, html);
+      } else if (log.channel === "sms" && booking.guest_phone) {
+        const smsTemplate = wf.sms_body || "Reminder: {{meeting_type}} on {{date}} at {{time}}.";
+        retrySent = await sendSms(booking.guest_phone, replaceVars(smsTemplate, vars));
+      }
+
+      if (retrySent) {
+        await supabase.from("workflow_logs").update({ status: "sent", sent_at: new Date().toISOString(), error_message: "Retried successfully" }).eq("id", log.id);
+        retried++;
+      }
+    }
+  }
+
 
   // Get all active workflows
   const { data: allWorkflows } = await supabase
@@ -271,6 +311,7 @@ export async function POST(req: NextRequest) {
     sentEmail,
     sentSms,
     skipped,
+    retried,
     processedAt: now.toISOString(),
   });
 }
