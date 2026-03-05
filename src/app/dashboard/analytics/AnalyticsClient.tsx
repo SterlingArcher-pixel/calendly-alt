@@ -51,7 +51,7 @@ export default function AnalyticsClient({
 
   // Total interview hours
   const totalMinutes = completed.reduce((sum, b) => {
-    const mt = b.meeting_types;
+    const mt = Array.isArray(b.meeting_types) ? b.meeting_types[0] : b.meeting_types;
     return sum + (mt?.duration_minutes || 30);
   }, 0);
   const totalHours = (totalMinutes / 60).toFixed(1);

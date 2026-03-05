@@ -26,8 +26,8 @@ export default async function AnalyticsPage() {
 
   return (
     <AnalyticsClient
-      bookings={bookingsRes.data || []}
-      meetingTypes={meetingTypesRes.data || []}
+      bookings={(bookingsRes.data || []) as any}
+      meetingTypes={(meetingTypesRes.data || []) as any}
     />
   );
 }

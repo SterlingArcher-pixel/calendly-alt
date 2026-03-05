@@ -42,7 +42,7 @@ export default function FacilitiesPage() {
   async function loadMembers(facilityId: string) {
     const supabase = createClient();
     const { data: mems } = await supabase.from("facility_members").select("id, host_id, role, hosts(name, email)").eq("facility_id", facilityId);
-    setMembers(mems || []);
+    setMembers((mems || []) as any);
     const { data: hosts } = await supabase.from("hosts").select("id, name, email").order("name");
     setAllHosts(hosts || []);
   }
