@@ -29,7 +29,7 @@ function isCsrfProtected(pathname: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
-  const { pathname, method } = request.nextUrl;
+  const { pathname } = request.nextUrl;
   const reqMethod = request.method;
 
   // CSRF: check Origin on state-changing requests
