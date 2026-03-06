@@ -98,11 +98,11 @@ export default function AnalyticsClient({
 
   // --- Color palette (intentionally distinct from meeting type colors) ---
   const kpiAccents = {
-    total:    { border: '#1e293b', text: 'text-gray-900' },        // slate-800 — anchor stat
-    upcoming: { border: '#d97706', text: 'text-amber-600' },       // amber — warm, forward-looking
-    completed:{ border: '#0d9488', text: 'text-teal-600' },        // teal — brand-aligned success
-    cancel:   { border: '#e11d48', text: 'text-rose-600' },        // rose — alert, not the same red as meeting types
-    hours:    { border: '#4f46e5', text: 'text-indigo-600' },      // indigo — distinct from purple meeting types
+    total:    { border: '#1e293b', text: 'text-gray-900' },        // slate   — neutral anchor
+    upcoming: { border: '#DB2777', text: 'text-pink-600' },        // pink    — no meeting type uses this
+    completed:{ border: '#CA8A04', text: 'text-yellow-600' },      // yellow  — distinct from all greens/cyans
+    cancel:   { border: '#C026D3', text: 'text-fuchsia-600' },     // fuchsia — not red, not violet
+    hours:    { border: '#65A30D', text: 'text-lime-600' },        // lime    — distinct from forest green
   };
 
   // Chart palettes — each chart gets its own color lane
