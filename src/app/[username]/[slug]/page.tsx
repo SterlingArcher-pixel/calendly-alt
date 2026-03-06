@@ -434,7 +434,7 @@ export default function BookingPage() {
                             isSelected
                               ? "bg-teal-600 text-white shadow-sm"
                               : isPast
-                              ? "cursor-not-allowed text-gray-300"
+                              ? "cursor-not-allowed text-gray-300 opacity-40"
                               : isTodayDate
                               ? "bg-teal-50 text-teal-700 hover:bg-teal-100"
                               : "text-gray-700 hover:bg-gray-100"

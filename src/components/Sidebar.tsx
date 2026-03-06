@@ -111,7 +111,7 @@ export default function Sidebar({ host }: { host: any }) {
         >
           <span className="text-sm font-bold" style={{ color: "#0B2522" }}>A</span>
         </div>
-        <span className="text-base font-semibold text-white tracking-tight">Apploi Scheduling</span>
+        <span className="text-base font-bold text-white tracking-tight">Apploi <span className="text-teal-400">Scheduling</span></span>
       </div>
 
       {/* Facility Switcher */}
