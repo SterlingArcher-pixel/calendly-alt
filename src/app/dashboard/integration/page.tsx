@@ -24,6 +24,30 @@ export default function IntegrationPage() {
     hired: "Hired",
   };
 
+  const mergeFields = [
+    { field: "{{guest_name}}", description: "Candidate full name", example: "Maria Garcia", calendly: true, native: true },
+    { field: "{{guest_email}}", description: "Candidate email address", example: "maria.g@email.com", calendly: true, native: true },
+    { field: "{{meeting_type}}", description: "Interview type name", example: "RN Initial Phone Screen", calendly: false, native: true },
+    { field: "{{date}}", description: "Interview date", example: "March 15, 2026", calendly: false, native: true },
+    { field: "{{time}}", description: "Interview time", example: "10:00 AM EST", calendly: false, native: true },
+    { field: "{{duration}}", description: "Interview duration", example: "30 minutes", calendly: false, native: true },
+    { field: "{{host_name}}", description: "Interviewer full name", example: "Sarah Chen", calendly: false, native: true },
+    { field: "{{facility_name}}", description: "Facility / location name", example: "Sunrise Harbor View", calendly: false, native: true },
+    { field: "{{facility_address}}", description: "Facility street address", example: "42 Ocean Ave, Portland ME", calendly: false, native: true },
+    { field: "{{meet_link}}", description: "Google Meet video link", example: "meet.google.com/abc-defg-hij", calendly: false, native: true },
+    { field: "{{scheduling_link}}", description: "Booking page URL for candidate", example: "calendly-alt.vercel.app/charlie/rn-screen", calendly: true, native: true },
+    { field: "{{cancel_link}}", description: "One-click cancellation link", example: "calendly-alt.vercel.app/cancel/abc123", calendly: true, native: true },
+    { field: "{{reschedule_link}}", description: "One-click reschedule link", example: "calendly-alt.vercel.app/reschedule/abc123", calendly: true, native: true },
+  ];
+
+  const calendlyLimitations = [
+    { field: "|INTERVIEW_DATE_TIME_DURATION|", issue: "Does not resolve for Calendly-booked interviews. Only Apploi-native interviews populate this field.", native: "{{date}}, {{time}}, {{duration}}" },
+    { field: "|INTERVIEWER_FULL_NAME|", issue: "Does not resolve for Calendly-booked interviews. Blank in workflow emails.", native: "{{host_name}}" },
+    { field: "|INTERVIEW_LOCATION|", issue: "Does not resolve for Calendly-booked interviews. No facility data synced.", native: "{{facility_name}}, {{facility_address}}" },
+    { field: "Reminder Workflows", issue: "Calendly-booked interviews do not trigger Apploi reminder workflows that contain interview merge fields.", native: "Full workflow engine with 24hr + 2hr reminders" },
+    { field: "Round Robin URL", issue: "Requires V2 OAuth + paid Calendly account per recruiter. Admin must resync event types manually.", native: "Native round robin (roadmap)" },
+  ];
+
   return (
     <div>
       <div className="mb-8">
@@ -66,6 +90,216 @@ export default function IntegrationPage() {
         </div>
       </div>
 
+      {/* ===== WHY REPLACE CALENDLY: MERGE FIELD GAP ===== */}
+      <div className="mb-8 rounded-xl border-2 border-amber-200 bg-amber-50/50 p-6">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100">
+            <svg className="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">Why Replace Calendly: Merge Field Gap</h2>
+            <p className="text-sm text-gray-600">Current Calendly integration cannot resolve interview-specific merge fields in Automated Workflows.</p>
+          </div>
+        </div>
+        <div className="overflow-hidden rounded-lg border border-amber-200 bg-white">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b bg-gray-50">
+                <th className="py-3 pl-5 pr-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Calendly Merge Field</th>
+                <th className="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Current Limitation</th>
+                <th className="py-3 pl-3 pr-5 text-xs font-semibold uppercase tracking-wide text-gray-500">Native Replacement</th>
+              </tr>
+            </thead>
+            <tbody>
+              {calendlyLimitations.map((item, i) => (
+                <tr key={i} className="border-b last:border-b-0">
+                  <td className="py-3 pl-5 pr-3">
+                    <code className="rounded bg-red-50 px-2 py-0.5 text-xs font-mono text-red-700">{item.field}</code>
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="flex items-start gap-2">
+                      <svg className="mt-0.5 h-4 w-4 shrink-0 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      <span className="text-sm text-gray-600">{item.issue}</span>
+                    </div>
+                  </td>
+                  <td className="py-3 pl-3 pr-5">
+                    <div className="flex items-center gap-2">
+                      <svg className="h-4 w-4 shrink-0 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <code className="rounded bg-emerald-50 px-2 py-0.5 text-xs font-mono text-emerald-700">{item.native}</code>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-3 flex items-center gap-2 rounded-lg bg-amber-100/60 px-4 py-2.5">
+          <svg className="h-4 w-4 shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-xs font-medium text-amber-800">
+            Impact: Customers using Calendly + Automated Workflows must either omit interview details from emails or tell candidates to check Calendly separately. Native scheduling eliminates this gap entirely.
+          </p>
+        </div>
+      </div>
+
+      {/* ===== MERGE FIELD REFERENCE ===== */}
+      <div className="mb-8 rounded-xl border bg-white p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100">
+              <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Merge Field Reference</h2>
+              <p className="text-sm text-gray-500">All available template variables for Automated Workflows and email templates.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            All fields resolve natively
+          </div>
+        </div>
+        <div className="overflow-hidden rounded-lg border">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b bg-gray-50">
+                <th className="py-3 pl-5 pr-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Merge Field</th>
+                <th className="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Description</th>
+                <th className="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Example Output</th>
+                <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">Calendly</th>
+                <th className="py-3 pl-3 pr-5 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">Native</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mergeFields.map((mf, i) => (
+                <tr key={i} className="border-b last:border-b-0 hover:bg-gray-50">
+                  <td className="py-2.5 pl-5 pr-3">
+                    <code className="rounded bg-slate-100 px-2 py-0.5 text-xs font-mono text-slate-700">{mf.field}</code>
+                  </td>
+                  <td className="px-3 py-2.5 text-sm text-gray-600">{mf.description}</td>
+                  <td className="px-3 py-2.5 text-sm italic text-gray-400">{mf.example}</td>
+                  <td className="px-3 py-2.5 text-center">
+                    {mf.calendly ? (
+                      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-yellow-100 text-xs text-yellow-600">~</span>
+                    ) : (
+                      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-xs text-red-500">
+                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-2.5 pl-3 pr-5 text-center">
+                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-xs text-emerald-600">
+                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          <div className="rounded-lg border border-red-100 bg-red-50/50 px-3 py-2 text-center">
+            <p className="text-lg font-bold text-red-600">5</p>
+            <p className="text-[11px] font-medium text-red-600/70">Broken with Calendly</p>
+          </div>
+          <div className="rounded-lg border border-yellow-100 bg-yellow-50/50 px-3 py-2 text-center">
+            <p className="text-lg font-bold text-yellow-600">3</p>
+            <p className="text-[11px] font-medium text-yellow-600/70">Partial (link only)</p>
+          </div>
+          <div className="rounded-lg border border-emerald-100 bg-emerald-50/50 px-3 py-2 text-center">
+            <p className="text-lg font-bold text-emerald-600">13</p>
+            <p className="text-[11px] font-medium text-emerald-600/70">All work natively</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== COST COMPARISON ===== */}
+      <div className="mb-8 rounded-xl border bg-white p-6">
+        <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-gray-900">
+          <span className="rounded-lg bg-violet-100 p-1.5">
+            <svg className="h-4 w-4 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </span>
+          Integration Cost Comparison
+        </h2>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="rounded-lg border-2 border-red-200 bg-red-50/30 p-4">
+            <h3 className="mb-3 text-sm font-bold text-red-700">Current: Calendly Integration</h3>
+            <ul className="space-y-2 text-sm text-gray-600">
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-red-400">•</span>
+                Paid Calendly seat per recruiter ($10–16/mo each)
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-red-400">•</span>
+                OAuth V2 migration required (V1 keys incompatible)
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-red-400">•</span>
+                CSops must enable calendar_job_owner flag per customer
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-red-400">•</span>
+                Interview merge fields blank in workflow emails
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-red-400">•</span>
+                Round robin requires manual admin resync
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-red-400">•</span>
+                Direct Calendly URLs bypass Apploi sync entirely
+              </li>
+            </ul>
+          </div>
+          <div className="rounded-lg border-2 border-emerald-200 bg-emerald-50/30 p-4">
+            <h3 className="mb-3 text-sm font-bold text-emerald-700">Proposed: Apploi Scheduling (Native)</h3>
+            <ul className="space-y-2 text-sm text-gray-600">
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-emerald-500">•</span>
+                Zero per-seat licensing cost
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-emerald-500">•</span>
+                Single OAuth flow (Google Calendar) — no third-party auth
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-emerald-500">•</span>
+                No feature flags needed — works out of the box
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-emerald-500">•</span>
+                All 13 merge fields resolve in every workflow email
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-emerald-500">•</span>
+                Native reminder engine (24hr + 2hr) with full data
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-emerald-500">•</span>
+                Every booking auto-syncs — no URL leakage possible
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       {/* Key metrics */}
       <div className="mb-8 grid grid-cols-4 gap-5">
         <div className="rounded-xl border bg-white p-5">
@@ -101,7 +335,6 @@ export default function IntegrationPage() {
             Mock Data — connects to Apploi Partner API in production
           </div>
         </div>
-
         <div className="overflow-hidden rounded-xl border bg-white">
           <table className="w-full text-left text-sm">
             <thead>
@@ -196,7 +429,6 @@ export default function IntegrationPage() {
             </li>
           </ul>
         </div>
-
         <div className="rounded-xl border bg-white p-6">
           <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
             <span className="rounded-lg bg-purple-100 p-1.5">

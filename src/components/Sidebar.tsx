@@ -61,6 +61,15 @@ const navItems = [
       </svg>
     ),
   },
+  {
+    name: "Integration",
+    href: "/dashboard/integration",
+    icon: (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-4.486a4.5 4.5 0 00-1.242-7.244l4.5-4.5a4.5 4.5 0 016.364 6.364l-1.757 1.757" />
+      </svg>
+    ),
+  },
 ];
 
 export default function Sidebar() {
