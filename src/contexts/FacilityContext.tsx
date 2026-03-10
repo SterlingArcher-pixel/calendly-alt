@@ -14,7 +14,7 @@ interface Facility {
 
 interface FacilityContextType {
   facilities: Facility[];
-  activeFacilityId: string | null;  // null = "All Facilities"
+  activeFacilityId: string | null; // null = "All Facilities"
   activeFacility: Facility | null;
   setActiveFacilityId: (id: string | null) => void;
   loading: boolean;
@@ -32,13 +32,15 @@ export function FacilityProvider({ children }: { children: ReactNode }) {
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [activeFacilityId, setActiveFacilityIdState] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
-  // Load from localStorage on mount
+  // Hydration-safe: only read localStorage after client mount
   useEffect(() => {
     const stored = localStorage.getItem("activeFacilityId");
     if (stored && stored !== "null") {
       setActiveFacilityIdState(stored);
     }
+    setMounted(true);
   }, []);
 
   // Fetch facilities
@@ -48,7 +50,6 @@ export function FacilityProvider({ children }: { children: ReactNode }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
 
-      // Get facilities where user is a member or org owner
       const { data: memberFacilities } = await supabase
         .from("facility_members")
         .select("facility_id, facilities(id, name, slug, city, state, is_active)")
@@ -59,22 +60,18 @@ export function FacilityProvider({ children }: { children: ReactNode }) {
         .select("id, name, slug, city, state, is_active")
         .eq("org_id", user.id);
 
-      // Merge and deduplicate
       const facilityMap = new Map<string, Facility>();
-
       if (ownedFacilities) {
         for (const f of ownedFacilities) {
           facilityMap.set(f.id, f);
         }
       }
-
       if (memberFacilities) {
         for (const m of memberFacilities) {
           const f = m.facilities as any;
           if (f?.id) facilityMap.set(f.id, f);
         }
       }
-
       const allFacilities = Array.from(facilityMap.values()).filter(f => f.is_active);
       setFacilities(allFacilities);
 
@@ -84,7 +81,6 @@ export function FacilityProvider({ children }: { children: ReactNode }) {
         setActiveFacilityIdState(null);
         localStorage.removeItem("activeFacilityId");
       }
-
       setLoading(false);
     }
     load();
@@ -99,12 +95,20 @@ export function FacilityProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const activeFacility = activeFacilityId
-    ? facilities.find(f => f.id === activeFacilityId) || null
+  // Before mount, always return null to match server render
+  const safeActiveFacilityId = mounted ? activeFacilityId : null;
+  const activeFacility = safeActiveFacilityId
+    ? facilities.find(f => f.id === safeActiveFacilityId) || null
     : null;
 
   return (
-    <FacilityContext.Provider value={{ facilities, activeFacilityId, activeFacility, setActiveFacilityId, loading }}>
+    <FacilityContext.Provider value={{
+      facilities,
+      activeFacilityId: safeActiveFacilityId,
+      activeFacility,
+      setActiveFacilityId,
+      loading,
+    }}>
       {children}
     </FacilityContext.Provider>
   );
