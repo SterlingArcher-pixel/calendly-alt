@@ -26,7 +26,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#F8F6F3" }}>
       <FacilityProvider>
-        <Sidebar host={host} />
+        <Sidebar />
 
         {/* Main content */}
         <div className="lg:ml-64">
