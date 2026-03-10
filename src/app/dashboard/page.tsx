@@ -23,43 +23,41 @@ export default function DashboardOverview() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setLoading(false); return; }
 
-    const { data: hostData } = await supabase.from("hosts").select("*").eq("id", user.id).single();
-    setHost(hostData);
-
-    // Meeting types
-    let mtQuery = supabase.from("meeting_types").select("*").eq("host_id", user.id).order("sort_order");
-    const { data: mts } = await mtQuery;
-    setMeetingTypes(mts || []);
-
     const now = new Date().toISOString();
 
-    // Upcoming bookings
+    // Build all queries (facility-filtered where needed)
     let upQuery = supabase.from("bookings").select("*, meeting_types(title, color, duration_minutes)")
       .eq("host_id", user.id).in("status", ["confirmed", "rescheduled"]).gte("starts_at", now).order("starts_at").limit(5);
     if (activeFacilityId) upQuery = upQuery.eq("facility_id", activeFacilityId);
-    const { data: upcoming } = await upQuery;
-    setUpcomingBookings(upcoming || []);
 
-    // Past count
     let pastQ = supabase.from("bookings").select("*", { count: "exact", head: true })
       .eq("host_id", user.id).eq("status", "confirmed").lt("starts_at", now);
     if (activeFacilityId) pastQ = pastQ.eq("facility_id", activeFacilityId);
-    const { count: pc } = await pastQ;
-    setPastCount(pc || 0);
 
-    // Cancelled count
     let cancelQ = supabase.from("bookings").select("*", { count: "exact", head: true })
       .eq("host_id", user.id).eq("status", "cancelled");
     if (activeFacilityId) cancelQ = cancelQ.eq("facility_id", activeFacilityId);
-    const { count: cc } = await cancelQ;
-    setCancelledCount(cc || 0);
 
-    // Recent activity
     let actQuery = supabase.from("bookings").select("*, meeting_types(title, color)")
       .eq("host_id", user.id).order("created_at", { ascending: false }).limit(8);
     if (activeFacilityId) actQuery = actQuery.eq("facility_id", activeFacilityId);
-    const { data: activity } = await actQuery;
-    setRecentActivity(activity || []);
+
+    // Fire ALL queries in parallel (6 queries, 1 round trip instead of 6)
+    const [hostRes, mtRes, upRes, pastRes, cancelRes, actRes] = await Promise.all([
+      supabase.from("hosts").select("*").eq("id", user.id).single(),
+      supabase.from("meeting_types").select("*").eq("host_id", user.id).order("sort_order"),
+      upQuery,
+      pastQ,
+      cancelQ,
+      actQuery,
+    ]);
+
+    setHost(hostRes.data);
+    setMeetingTypes(mtRes.data || []);
+    setUpcomingBookings(upRes.data || []);
+    setPastCount(pastRes.count || 0);
+    setCancelledCount(cancelRes.count || 0);
+    setRecentActivity(actRes.data || []);
 
     setLoading(false);
   }
