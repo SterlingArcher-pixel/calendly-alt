@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -8,6 +9,12 @@ const COLORS = [
 ];
 const DURATIONS = [15, 30, 45, 60, 90];
 
+const VIDEO_PROVIDERS = [
+  { value: "google_meet", label: "Google Meet", icon: "🎥", desc: "Auto-generates unique Meet link per booking" },
+  { value: "teams", label: "Microsoft Teams", icon: "🟦", desc: "Uses recruiter's personal Teams meeting room link" },
+  { value: "none", label: "No Video", icon: "📞", desc: "Phone or in-person interview — no video link" },
+];
+
 interface MeetingType {
   id: string;
   title: string;
@@ -16,20 +23,23 @@ interface MeetingType {
   duration_minutes: number;
   color: string;
   is_active: boolean;
+  video_provider: string;
 }
 
 export default function MeetingTypesPage() {
   const [types, setTypes] = useState<MeetingType[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", duration_minutes: 30, color: COLORS[0] });
+  const [form, setForm] = useState({ title: "", description: "", duration_minutes: 30, color: COLORS[0], video_provider: "google_meet" });
   const [saving, setSaving] = useState(false);
   const [hostSlug, setHostSlug] = useState("");
   const [copiedId, setCopiedId] = useState("");
+  const [teamsLink, setTeamsLink] = useState("");
+  const [teamsLinkSaving, setTeamsLinkSaving] = useState(false);
 
   // Edit state
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ title: "", description: "", duration_minutes: 30, color: COLORS[0] });
+  const [editForm, setEditForm] = useState({ title: "", description: "", duration_minutes: 30, color: COLORS[0], video_provider: "google_meet" });
   const [editSaving, setEditSaving] = useState(false);
 
   // Delete state
@@ -45,9 +55,22 @@ export default function MeetingTypesPage() {
     if (!user) { setLoading(false); return; }
     const { data } = await supabase.from("meeting_types").select("*").eq("host_id", user.id).order("created_at");
     setTypes(data || []);
-    const { data: hostData } = await supabase.from("hosts").select("booking_url_slug").eq("id", user.id).single();
-    if (hostData) setHostSlug(hostData.booking_url_slug || "");
+    const { data: hostData } = await supabase.from("hosts").select("booking_url_slug, teams_link").eq("id", user.id).single();
+    if (hostData) {
+      setHostSlug(hostData.booking_url_slug || "");
+      setTeamsLink(hostData.teams_link || "");
+    }
     setLoading(false);
+  }
+
+  async function saveTeamsLink() {
+    setTeamsLinkSaving(true);
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("hosts").update({ teams_link: teamsLink || null }).eq("id", user.id);
+    }
+    setTeamsLinkSaving(false);
   }
 
   async function handleCreate() {
@@ -57,11 +80,17 @@ export default function MeetingTypesPage() {
     if (!user) { setSaving(false); return; }
     const slug = form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     const { error } = await supabase.from("meeting_types").insert({
-      host_id: user.id, title: form.title, slug, description: form.description,
-      duration_minutes: form.duration_minutes, color: form.color, is_active: true,
+      host_id: user.id,
+      title: form.title,
+      slug,
+      description: form.description,
+      duration_minutes: form.duration_minutes,
+      color: form.color,
+      video_provider: form.video_provider,
+      is_active: true,
     });
     if (!error) {
-      setForm({ title: "", description: "", duration_minutes: 30, color: COLORS[0] });
+      setForm({ title: "", description: "", duration_minutes: 30, color: COLORS[0], video_provider: "google_meet" });
       setShowForm(false);
       loadTypes();
     }
@@ -70,7 +99,13 @@ export default function MeetingTypesPage() {
 
   function startEdit(mt: MeetingType) {
     setEditingId(mt.id);
-    setEditForm({ title: mt.title, description: mt.description || "", duration_minutes: mt.duration_minutes, color: mt.color });
+    setEditForm({
+      title: mt.title,
+      description: mt.description || "",
+      duration_minutes: mt.duration_minutes,
+      color: mt.color,
+      video_provider: mt.video_provider || "google_meet",
+    });
   }
 
   async function handleEdit() {
@@ -79,8 +114,12 @@ export default function MeetingTypesPage() {
     const supabase = createClient();
     const slug = editForm.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     await supabase.from("meeting_types").update({
-      title: editForm.title, slug, description: editForm.description,
-      duration_minutes: editForm.duration_minutes, color: editForm.color,
+      title: editForm.title,
+      slug,
+      description: editForm.description,
+      duration_minutes: editForm.duration_minutes,
+      color: editForm.color,
+      video_provider: editForm.video_provider,
     }).eq("id", editingId);
     setEditingId(null);
     setEditSaving(false);
@@ -91,7 +130,6 @@ export default function MeetingTypesPage() {
     if (!deleteId) return;
     setDeleting(true);
     const supabase = createClient();
-    // Nullify bookings referencing this meeting type first
     await supabase.from("bookings").update({ meeting_type_id: null }).eq("meeting_type_id", deleteId);
     await supabase.from("meeting_types").delete().eq("id", deleteId);
     setDeleteId(null);
@@ -105,6 +143,12 @@ export default function MeetingTypesPage() {
     await supabase.from("meeting_types").update({ is_active: !mt.is_active }).eq("id", mt.id);
     loadTypes();
   }
+
+  const providerLabel = (p: string) => VIDEO_PROVIDERS.find(v => v.value === p)?.label || "Google Meet";
+  const providerIcon = (p: string) => VIDEO_PROVIDERS.find(v => v.value === p)?.icon || "🎥";
+
+  // Show Teams link config banner if any meeting type uses Teams
+  const hasTeamsType = types.some(mt => mt.video_provider === "teams");
 
   if (loading) {
     return (
@@ -132,14 +176,47 @@ export default function MeetingTypesPage() {
           <h1 className="text-2xl font-bold text-gray-900">Meeting Types</h1>
           <p className="mt-1 text-sm text-gray-500">{types.length} interview types configured</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-teal-700">
+        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-teal-700">
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
           New Type
         </button>
       </div>
+
+      {/* Teams link configuration */}
+      {hasTeamsType && (
+        <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50/50 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">🟦</span>
+            <h3 className="text-sm font-semibold text-gray-900">Microsoft Teams Meeting Link</h3>
+          </div>
+          <p className="mb-3 text-xs text-gray-500">Paste your personal Teams meeting room URL. This link will be attached to all Teams-enabled meeting types.</p>
+          <div className="flex gap-2">
+            <input
+              value={teamsLink}
+              onChange={(e) => setTeamsLink(e.target.value)}
+              placeholder="https://teams.microsoft.com/l/meetup-join/..."
+              className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            <button
+              onClick={saveTeamsLink}
+              disabled={teamsLinkSaving}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {teamsLinkSaving ? "Saving..." : "Save"}
+            </button>
+          </div>
+          {teamsLink && (
+            <p className="mt-2 flex items-center gap-1.5 text-xs text-green-600">
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              Teams link configured
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Create form */}
       {showForm && (
@@ -148,8 +225,7 @@ export default function MeetingTypesPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Title</label>
-              <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
-                placeholder="e.g. RN Phone Screen"
+              <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. RN Phone Screen"
                 className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500" />
             </div>
             <div>
@@ -165,9 +241,27 @@ export default function MeetingTypesPage() {
             </div>
             <div className="sm:col-span-2">
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Description</label>
-              <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Brief description for candidates"
+              <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Brief description for candidates"
                 className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500" />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">Video Provider</label>
+              <div className="grid grid-cols-3 gap-2">
+                {VIDEO_PROVIDERS.map(vp => (
+                  <button key={vp.value} onClick={() => setForm({ ...form, video_provider: vp.value })}
+                    className={`rounded-lg border p-3 text-left transition-colors ${
+                      form.video_provider === vp.value
+                        ? "border-teal-500 bg-teal-50 ring-1 ring-teal-500"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">{vp.icon}</span>
+                      <span className="text-sm font-medium text-gray-900">{vp.label}</span>
+                    </div>
+                    <p className="mt-1 text-[11px] text-gray-500">{vp.desc}</p>
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="sm:col-span-2">
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Color</label>
@@ -182,8 +276,7 @@ export default function MeetingTypesPage() {
           </div>
           <div className="mt-5 flex justify-end gap-2">
             <button onClick={() => setShowForm(false)} className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">Cancel</button>
-            <button onClick={handleCreate} disabled={!form.title || saving}
-              className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50">
+            <button onClick={handleCreate} disabled={!form.title || saving} className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50">
               {saving ? "Creating..." : "Create Meeting Type"}
             </button>
           </div>
@@ -214,9 +307,27 @@ export default function MeetingTypesPage() {
               </div>
               <div className="sm:col-span-2">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700">Description</label>
-                <input value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                  placeholder="Brief description for candidates"
+                <input value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} placeholder="Brief description for candidates"
                   className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500" />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Video Provider</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {VIDEO_PROVIDERS.map(vp => (
+                    <button key={vp.value} onClick={() => setEditForm({ ...editForm, video_provider: vp.value })}
+                      className={`rounded-lg border p-3 text-left transition-colors ${
+                        editForm.video_provider === vp.value
+                          ? "border-teal-500 bg-teal-50 ring-1 ring-teal-500"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">{vp.icon}</span>
+                        <span className="text-sm font-medium text-gray-900">{vp.label}</span>
+                      </div>
+                      <p className="mt-1 text-[11px] text-gray-500">{vp.desc}</p>
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="sm:col-span-2">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700">Color</label>
@@ -231,8 +342,7 @@ export default function MeetingTypesPage() {
             </div>
             <div className="mt-5 flex justify-end gap-2">
               <button onClick={() => setEditingId(null)} className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">Cancel</button>
-              <button onClick={handleEdit} disabled={!editForm.title || editSaving}
-                className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50">
+              <button onClick={handleEdit} disabled={!editForm.title || editSaving} className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50">
                 {editSaving ? "Saving..." : "Save Changes"}
               </button>
             </div>
@@ -254,12 +364,8 @@ export default function MeetingTypesPage() {
               Are you sure you want to delete <span className="font-medium text-gray-700">{deleteTitle}</span>? Existing bookings will be preserved but unlinked from this type.
             </p>
             <div className="flex gap-3">
-              <button onClick={() => { setDeleteId(null); setDeleteTitle(""); }}
-                className="flex-1 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                Cancel
-              </button>
-              <button onClick={handleDelete} disabled={deleting}
-                className="flex-1 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
+              <button onClick={() => { setDeleteId(null); setDeleteTitle(""); }} className="flex-1 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+              <button onClick={handleDelete} disabled={deleting} className="flex-1 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
                 {deleting ? "Deleting..." : "Delete"}
               </button>
             </div>
@@ -270,8 +376,7 @@ export default function MeetingTypesPage() {
       {/* Meeting types list */}
       <div className="space-y-3">
         {types.map((mt) => (
-          <div key={mt.id}
-            className={`flex items-center justify-between rounded-xl border bg-white p-5 transition-shadow hover:shadow-sm ${!mt.is_active ? "opacity-60" : ""}`}>
+          <div key={mt.id} className={`flex items-center justify-between rounded-xl border bg-white p-5 transition-shadow hover:shadow-sm ${!mt.is_active ? "opacity-60" : ""}`}>
             <div className="flex items-center gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: mt.color + "20" }}>
                 <div className="h-4 w-4 rounded-full" style={{ backgroundColor: mt.color }} />
@@ -283,29 +388,29 @@ export default function MeetingTypesPage() {
                     <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500 uppercase">Inactive</span>
                   )}
                 </div>
-                <p className="mt-0.5 text-sm text-gray-500">{mt.duration_minutes} min &middot; {mt.description || "No description"}</p>
+                <p className="mt-0.5 text-sm text-gray-500">
+                  {mt.duration_minutes} min &middot; {mt.description || "No description"}
+                  <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                    {providerIcon(mt.video_provider)} {providerLabel(mt.video_provider)}
+                  </span>
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/${hostSlug}/${mt.slug}`); setCopiedId(mt.id); setTimeout(() => setCopiedId(""), 2000); }}
-                className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50">
+              <button onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/${hostSlug}/${mt.slug}`);
+                setCopiedId(mt.id);
+                setTimeout(() => setCopiedId(""), 2000);
+              }} className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50">
                 {copiedId === mt.id ? "Copied!" : "Copy Link"}
               </button>
-              <button onClick={() => startEdit(mt)}
-                className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
-                title="Edit">
-                Edit
-              </button>
-              <button onClick={() => { setDeleteId(mt.id); setDeleteTitle(mt.title); }}
-                className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
-                title="Delete">
+              <button onClick={() => startEdit(mt)} className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50" title="Edit">Edit</button>
+              <button onClick={() => { setDeleteId(mt.id); setDeleteTitle(mt.title); }} className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50" title="Delete">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>
-              <button onClick={() => toggleActive(mt)}
-                className={`relative h-6 w-11 rounded-full transition-colors ${mt.is_active ? "bg-teal-600" : "bg-gray-300"}`}>
+              <button onClick={() => toggleActive(mt)} className={`relative h-6 w-11 rounded-full transition-colors ${mt.is_active ? "bg-teal-600" : "bg-gray-300"}`}>
                 <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${mt.is_active ? "translate-x-5" : "translate-x-0"}`} />
               </button>
             </div>

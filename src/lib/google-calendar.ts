@@ -22,6 +22,7 @@ export async function createCalendarEvent({
   endTime,
   attendeeEmail,
   attendeeName,
+  skipConferencing,
 }: {
   accessToken: string;
   summary: string;
@@ -30,38 +31,48 @@ export async function createCalendarEvent({
   endTime: string;
   attendeeEmail: string;
   attendeeName: string;
+  skipConferencing?: boolean;
 }) {
-  const res = await fetch(
-    "https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=all",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
+  const url = skipConferencing
+    ? "https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=all"
+    : "https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=all";
+
+  const eventBody: any = {
+    summary,
+    description,
+    start: { dateTime: startTime },
+    end: { dateTime: endTime },
+    attendees: [{ email: attendeeEmail, displayName: attendeeName }],
+    reminders: {
+      useDefault: false,
+      overrides: [
+        { method: "email", minutes: 1440 },
+        { method: "popup", minutes: 30 },
+      ],
+    },
+  };
+
+  // Only add conferencing when not skipped
+  if (!skipConferencing) {
+    eventBody.conferenceData = {
+      createRequest: {
+        requestId: `calendlyalt-${Date.now()}`,
+        conferenceSolutionKey: { type: "hangoutsMeet" },
       },
-      body: JSON.stringify({
-        summary,
-        description,
-        start: { dateTime: startTime },
-        end: { dateTime: endTime },
-        attendees: [{ email: attendeeEmail, displayName: attendeeName }],
-        conferenceData: {
-          createRequest: {
-            requestId: `calendlyalt-${Date.now()}`,
-            conferenceSolutionKey: { type: "hangoutsMeet" },
-          },
-        },
-        reminders: {
-          useDefault: false,
-          overrides: [
-            { method: "email", minutes: 1440 },
-            { method: "popup", minutes: 30 },
-          ],
-        },
-      }),
-    }
-  );
+    };
+  }
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(eventBody),
+  });
+
   const data = await res.json();
+
   return {
     eventId: data.id,
     meetLink: data.conferenceData?.entryPoints?.[0]?.uri || null,
