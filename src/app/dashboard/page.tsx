@@ -28,7 +28,6 @@ export default function DashboardOverview() {
 
     // Meeting types
     let mtQuery = supabase.from("meeting_types").select("*").eq("host_id", user.id).order("sort_order");
-    if (activeFacilityId) mtQuery = mtQuery.eq("facility_id", activeFacilityId);
     const { data: mts } = await mtQuery;
     setMeetingTypes(mts || []);
 
