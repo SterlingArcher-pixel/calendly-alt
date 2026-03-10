@@ -54,7 +54,7 @@ export default function BookingManagePage() {
     if (!booking) return;
     const ics = generateICS({
       title: booking.meeting_types.title + " with " + booking.hosts.name,
-      description: "Booked via Scheduling Tool" + (booking.google_meet_link ? "\nGoogle Meet: " + booking.google_meet_link : ""),
+      description: "Booked via Apploi Scheduling" + (booking.google_meet_link ? "\nGoogle Meet: " + booking.google_meet_link : ""),
       startTime: booking.starts_at,
       endTime: booking.ends_at,
       location: booking.google_meet_link || undefined,
@@ -164,7 +164,7 @@ export default function BookingManagePage() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-600 border-t-transparent" />
       </div>
     );
   }
@@ -187,10 +187,10 @@ export default function BookingManagePage() {
       <div className="w-full max-w-lg">
         {/* Header */}
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-            <span className="text-lg font-bold text-blue-600">ST</span>
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-teal-100">
+            <span className="text-lg font-bold text-teal-600">A</span>
           </div>
-          <h1 className="text-xl font-bold text-gray-900">Manage Your Booking</h1>
+          <h1 className="text-xl font-bold text-gray-900">Manage Your Interview</h1>
         </div>
 
         {/* Booking card */}
@@ -261,7 +261,7 @@ export default function BookingManagePage() {
               href={booking.google_meet_link}
               target="_blank"
               rel="noopener noreferrer"
-              className="mb-5 flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+              className="mb-5 flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-teal-700"
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
@@ -288,7 +288,7 @@ export default function BookingManagePage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowReschedule(true)}
-                className="flex-1 rounded-xl border-2 border-blue-600 px-4 py-2.5 text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-50"
+                className="flex-1 rounded-xl border-2 border-teal-600 px-4 py-2.5 text-sm font-semibold text-teal-600 transition-colors hover:bg-teal-50"
               >
                 Reschedule
               </button>
@@ -303,7 +303,7 @@ export default function BookingManagePage() {
         </div>
 
         {/* Footer */}
-        <p className="mt-4 text-center text-xs text-gray-400">Powered by Scheduling Tool</p>
+        <p className="mt-4 text-center text-xs text-gray-400">Powered by Apploi</p>
 
         {/* Cancel confirmation modal */}
         {showCancelConfirm && (
@@ -402,10 +402,10 @@ export default function BookingManagePage() {
                           onClick={() => fetchSlots(dateStr)}
                           className={`rounded-lg py-1.5 text-xs transition-all ${
                             isSelected
-                              ? "bg-blue-600 font-bold text-white"
+                              ? "bg-teal-600 font-bold text-white"
                               : isPastDay || isWeekend
                               ? "text-gray-300"
-                              : "text-gray-700 hover:bg-blue-50"
+                              : "text-gray-700 hover:bg-teal-50"
                           }`}
                         >
                           {day}
@@ -423,7 +423,7 @@ export default function BookingManagePage() {
                     </div>
                   ) : loadingSlots ? (
                     <div className="flex h-full items-center justify-center">
-                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-teal-600 border-t-transparent" />
                     </div>
                   ) : availableSlots.length === 0 ? (
                     <div className="flex h-full items-center justify-center">
@@ -437,8 +437,8 @@ export default function BookingManagePage() {
                           onClick={() => setSelectedTime(slot)}
                           className={`w-full rounded-lg px-3 py-2 text-xs font-medium transition-all ${
                             selectedTime === slot
-                              ? "bg-blue-600 text-white"
-                              : "border text-gray-700 hover:border-blue-300 hover:bg-blue-50"
+                              ? "bg-teal-600 text-white"
+                              : "border text-gray-700 hover:border-teal-300 hover:bg-teal-50"
                           }`}
                         >
                           {formatSlotTime(slot)}
@@ -451,7 +451,7 @@ export default function BookingManagePage() {
 
               {/* Confirm reschedule */}
               {selectedTime && (
-                <div className="mt-5 flex items-center justify-between rounded-xl bg-blue-50 p-4">
+                <div className="mt-5 flex items-center justify-between rounded-xl bg-teal-50 p-4">
                   <div>
                     <p className="text-sm font-medium text-gray-900">
                       {new Date(selectedDate!).toLocaleDateString("en-US", {
@@ -465,7 +465,7 @@ export default function BookingManagePage() {
                   <button
                     onClick={handleReschedule}
                     disabled={rescheduling}
-                    className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-50"
                   >
                     {rescheduling ? "Rescheduling..." : "Confirm new time"}
                   </button>

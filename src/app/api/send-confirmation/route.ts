@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   const htmlBody = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 500px; margin: 0 auto;">
-      <div style="background: #3b82f6; padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
+      <div style="background: linear-gradient(135deg, #0B2522 0%, #003D37 100%); padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
         <h1 style="color: white; margin: 0; font-size: 20px;">Interview Confirmed</h1>
       </div>
       <div style="background: #f9fafb; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
@@ -39,11 +39,11 @@ export async function POST(request: NextRequest) {
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 12px 0;" />
           <p style="margin: 0 0 4px; color: #374151; font-size: 14px;">📅 ${meeting_date}</p>
           <p style="margin: 0 0 4px; color: #374151; font-size: 14px;">🕐 ${meeting_time} (${duration_minutes} min)</p>
-          ${meet_link ? '<p style="margin: 0; font-size: 14px;">📹 <a href="' + meet_link + '" style="color: #3b82f6;">Join Google Meet</a></p>' : ''}
+          ${meet_link ? '<p style="margin: 0; font-size: 14px;">📹 <a href="' + meet_link + '" style="color: #00A1AB;">Join Google Meet</a></p>' : ''}
         </div>
 
         <div style="text-align: center;">
-          <a href="${bookingUrl}" style="display: inline-block; background: #3b82f6; color: white; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
+          <a href="${bookingUrl}" style="display: inline-block; background: linear-gradient(135deg, #0B2522 0%, #003D37 100%); color: white; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
             Manage Booking
           </a>
         </div>
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         Authorization: "Bearer " + RESEND_API_KEY,
       },
       body: JSON.stringify({
-        from: "Scheduling Tool <onboarding@resend.dev>",
+        from: "Apploi Scheduling <onboarding@resend.dev>",
         to: [guest_email],
         subject: "Confirmed: " + meeting_title + " with " + host_name,
         html: htmlBody,
