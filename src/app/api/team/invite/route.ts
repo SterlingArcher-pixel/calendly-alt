@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
   if (RESEND_API_KEY) {
     const htmlBody = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 500px; margin: 0 auto;">
-        <div style="background: #3b82f6; padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
+        <div style="background: linear-gradient(135deg, #0B2522 0%, #003D37 100%); padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
           <h1 style="color: white; margin: 0; font-size: 20px;">You're Invited</h1>
         </div>
         <div style="background: #f9fafb; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
@@ -111,11 +111,11 @@ export async function POST(request: NextRequest) {
           <p style="margin: 0 0 20px; color: #6b7280;">
             <strong>${host.name}</strong> has invited you to join
             <strong>${org?.name || "their team"}</strong> as a
-            <strong>${role || "recruiter"}</strong> on Scheduling Tool.
+            <strong>${role || "recruiter"}</strong> on Apploi Scheduling.
           </p>
 
           <div style="text-align: center; margin: 24px 0;">
-            <a href="${inviteUrl}" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
+            <a href="${inviteUrl}" style="display: inline-block; background: linear-gradient(135deg, #0B2522 0%, #003D37 100%); color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
               Accept Invitation
             </a>
           </div>
@@ -135,9 +135,9 @@ export async function POST(request: NextRequest) {
           Authorization: "Bearer " + RESEND_API_KEY,
         },
         body: JSON.stringify({
-          from: "Scheduling Tool <onboarding@resend.dev>",
+          from: "Apploi Scheduling <onboarding@resend.dev>",
           to: [email],
-          subject: host.name + " invited you to " + (org?.name || "their team"),
+          subject: host.name + " invited you to " + (org?.name || "their team") + " on Apploi Scheduling",
           html: htmlBody,
         }),
       });
