@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function Home() {
@@ -7,15 +8,35 @@ export default function Home() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  // Check if already logged in — prevents the login loop
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        window.location.href = "/dashboard";
+      } else {
+        setChecking(false);
+      }
+    });
+  }, []);
 
   const handleGoogleLogin = async () => {
     const supabase = createClient();
+
+    // Check if user already has a refresh token (don't need consent again)
+    const { data: { session } } = await supabase.auth.getSession();
+
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
         scopes: "https://www.googleapis.com/auth/calendar",
-        queryParams: { access_type: "offline", prompt: "consent" },
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
       },
     });
   };
@@ -24,8 +45,13 @@ export default function Home() {
     if (!email || !password) return;
     setLoading(true);
     setError("");
+
     const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
     if (signInError) {
       setError("Incorrect email or password.");
       setLoading(false);
@@ -33,6 +59,15 @@ export default function Home() {
       window.location.href = "/dashboard";
     }
   };
+
+  // Show nothing while checking session (prevents flash of login screen)
+  if (checking) {
+    return (
+      <main className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-600 border-t-transparent" />
+      </main>
+    );
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-4">
@@ -90,9 +125,7 @@ export default function Home() {
               className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
-
           {error && <p className="text-sm text-red-600">{error}</p>}
-
           <button
             onClick={handleEmailLogin}
             disabled={loading || !email || !password}
