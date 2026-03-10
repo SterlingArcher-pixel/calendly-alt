@@ -1,4 +1,5 @@
 "use client";
+
 import { useFacility } from "@/contexts/FacilityContext";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -11,19 +12,30 @@ const tabs = [
 
 type Tab = typeof tabs[number]["key"];
 
+function formatDate(date: Date) {
+  return {
+    month: date.toLocaleDateString("en-US", { month: "short" }),
+    day: date.getDate(),
+    time: date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+  };
+}
+
 function BookingCard({
   b,
   isPast,
   onCancel,
   onEdit,
+  mounted,
 }: {
   b: any;
   isPast?: boolean;
   onCancel?: (b: any) => void;
   onEdit?: (b: any) => void;
+  mounted: boolean;
 }) {
   const start = new Date(b.starts_at);
   const mt = b.meeting_types;
+  const formatted = mounted ? formatDate(start) : null;
 
   return (
     <div
@@ -33,22 +45,34 @@ function BookingCard({
     >
       <div className="flex items-center gap-4">
         <div className="flex flex-col items-center rounded-lg bg-teal-50 px-3.5 py-2 text-center min-w-[56px]">
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-teal-500">
-            {start.toLocaleDateString("en-US", { month: "short" })}
-          </span>
-          <span className="text-xl font-bold text-teal-700">{start.getDate()}</span>
+          {formatted ? (
+            <>
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-teal-500">
+                {formatted.month}
+              </span>
+              <span className="text-xl font-bold text-teal-700">{formatted.day}</span>
+            </>
+          ) : (
+            <>
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-teal-500">&nbsp;</span>
+              <span className="text-xl font-bold text-teal-700">&nbsp;</span>
+            </>
+          )}
         </div>
         <div>
           <div className="flex items-center gap-2">
             {mt?.color && (
-              <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: mt.color }} />
+              <div
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: mt.color }}
+              />
             )}
             <p className="font-medium text-gray-900">{mt?.title || "Meeting"}</p>
           </div>
           <p className="mt-0.5 text-sm text-gray-500">
-            with <span className="font-medium text-gray-700">{b.guest_name}</span> &middot;{" "}
-            {start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} (
-            {mt?.duration_minutes || 30} min)
+            with{" "}
+            <span className="font-medium text-gray-700">{b.guest_name}</span>{" "}
+            &middot; {formatted ? formatted.time : "..."} ({mt?.duration_minutes || 30} min)
           </p>
           <p className="mt-0.5 text-xs text-gray-400">{b.guest_email}</p>
         </div>
@@ -128,6 +152,7 @@ function EditModal({
 
     // Build new starts_at from date + time
     const newStart = new Date(`${form.date}T${form.time}:00`);
+
     // Get duration from selected meeting type
     const mt = meetingTypes.find((m) => m.id === form.meeting_type_id);
     const duration = mt?.duration_minutes || 30;
@@ -162,7 +187,6 @@ function EditModal({
         <p className="mt-1 text-sm text-gray-500">
           Update interview details for {booking.guest_name}
         </p>
-
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700">
@@ -221,11 +245,9 @@ function EditModal({
             </select>
           </div>
         </div>
-
         <p className="mt-4 text-xs text-gray-400">
           Changing the date or time will mark this booking as &ldquo;rescheduled&rdquo;.
         </p>
-
         <div className="mt-5 flex justify-end gap-2">
           <button
             onClick={onClose}
@@ -323,11 +345,23 @@ export default function BookingsClient({
   const [cancelBooking, setCancelBooking] = useState<any>(null);
   const [editBooking, setEditBooking] = useState<any>(null);
   const [meetingTypes, setMeetingTypes] = useState<any[]>([]);
-
+  const [mounted, setMounted] = useState(false);
   const { activeFacilityId } = useFacility();
-  const filteredUpcoming = activeFacilityId ? upcoming.filter((b: any) => b.facility_id === activeFacilityId) : upcoming;
-  const filteredPast = activeFacilityId ? past.filter((b: any) => b.facility_id === activeFacilityId) : past;
-  const filteredCancelled = activeFacilityId ? cancelled.filter((b: any) => b.facility_id === activeFacilityId) : cancelled;
+
+  // Hydration fix: only render dates after client mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const filteredUpcoming = activeFacilityId
+    ? upcoming.filter((b: any) => b.facility_id === activeFacilityId)
+    : upcoming;
+  const filteredPast = activeFacilityId
+    ? past.filter((b: any) => b.facility_id === activeFacilityId)
+    : past;
+  const filteredCancelled = activeFacilityId
+    ? cancelled.filter((b: any) => b.facility_id === activeFacilityId)
+    : cancelled;
 
   // Load meeting types for the edit dropdown
   useEffect(() => {
@@ -352,8 +386,13 @@ export default function BookingsClient({
     past: filteredPast.length,
     cancelled: filteredCancelled.length,
   };
+
   const bookings =
-    tab === "upcoming" ? filteredUpcoming : tab === "past" ? filteredPast : filteredCancelled;
+    tab === "upcoming"
+      ? filteredUpcoming
+      : tab === "past"
+      ? filteredPast
+      : filteredCancelled;
 
   return (
     <div>
@@ -414,6 +453,7 @@ export default function BookingsClient({
               key={b.id}
               b={b}
               isPast={tab === "past"}
+              mounted={mounted}
               onCancel={tab === "upcoming" ? setCancelBooking : undefined}
               onEdit={tab === "upcoming" ? setEditBooking : undefined}
             />

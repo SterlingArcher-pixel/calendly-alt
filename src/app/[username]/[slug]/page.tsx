@@ -71,21 +71,6 @@ export default function BookingPage() {
     }
   }, []);
 
-  // Apploi ATS pre-fill: auto-populate guest form from candidate data
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const applicantId = params.get("applicant_id");
-    if (applicantId) {
-      fetch(`/api/apploi/candidate?applicant_id=${applicantId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.name) setGuestName(data.name);
-          if (data.email) setGuestEmail(data.email);
-        })
-        .catch(() => {});
-    }
-  }, []);
-
   const handleDownloadICS = () => {
     if (!meetingType || !host || !selectedDate || !selectedTime) return;
     const startDate = new Date(selectedDate + "T" + selectedTime + ":00");
