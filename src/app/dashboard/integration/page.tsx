@@ -46,6 +46,7 @@ export default function IntegrationPage() {
     { field: "|INTERVIEW_LOCATION|", issue: "Does not resolve for Calendly-booked interviews. No facility data synced.", native: "{{facility_name}}, {{facility_address}}" },
     { field: "Reminder Workflows", issue: "Calendly-booked interviews do not trigger Apploi reminder workflows that contain interview merge fields.", native: "Full workflow engine with 24hr + 2hr reminders" },
     { field: "Round Robin URL", issue: "Requires V2 OAuth + paid Calendly account per recruiter. Admin must resync event types manually.", native: "Native round robin (roadmap)" },
+    { field: "Scheduling Link", issue: "Only supports job owner's static Calendly link. Cannot route to assigned recruiter's calendar.", native: "Dynamic per-recruiter link via {{scheduling_link}}" },
   ];
 
   return (
@@ -146,6 +147,132 @@ export default function IntegrationPage() {
           <p className="text-xs font-medium text-amber-800">
             Impact: Customers using Calendly + Automated Workflows must either omit interview details from emails or tell candidates to check Calendly separately. Native scheduling eliminates this gap entirely.
           </p>
+        </div>
+      </div>
+
+      {/* ===== DYNAMIC BOOKING LINKS ===== */}
+      <div className="mb-8 rounded-xl border-2 border-emerald-200 bg-white p-6">
+        <div className="mb-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100">
+              <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-4.486a4.5 4.5 0 00-1.242-7.244l4.5-4.5a4.5 4.5 0 016.364 6.364l-1.757 1.757" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Dynamic Per-Recruiter Booking Links</h2>
+              <p className="text-sm text-gray-500">Solves the Calendly single-link limitation — every recruiter gets their own scheduling URL, generated automatically.</p>
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 ring-1 ring-emerald-200">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            LIVE
+          </span>
+        </div>
+
+        {/* How it works — 3-step flow */}
+        <div className="mb-5 grid grid-cols-3 gap-4">
+          {[
+            {
+              step: "1",
+              title: "Candidate reaches \"Ready to Schedule\"",
+              desc: "Apploi sends a webhook when a recruiter moves the candidate to the scheduling stage.",
+              icon: (
+                <svg className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                </svg>
+              ),
+            },
+            {
+              step: "2",
+              title: "System looks up assigned recruiter",
+              desc: "Finds the recruiter's booking_url_slug and their first active meeting type automatically.",
+              icon: (
+                <svg className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+              ),
+            },
+            {
+              step: "3",
+              title: "Generates personalized booking link",
+              desc: "Unique URL routes to the correct recruiter's calendar with candidate data pre-filled.",
+              icon: (
+                <svg className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-4.486a4.5 4.5 0 00-1.242-7.244l4.5-4.5a4.5 4.5 0 016.364 6.364l-1.757 1.757" />
+                </svg>
+              ),
+            },
+          ].map((s) => (
+            <div key={s.step} className="rounded-lg border bg-gray-50 p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">{s.step}</span>
+                {s.icon}
+              </div>
+              <p className="text-sm font-semibold text-gray-800">{s.title}</p>
+              <p className="mt-1 text-xs text-gray-500">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Live example */}
+        <div className="mb-5 rounded-lg border border-emerald-200 bg-emerald-50/40 p-4">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">Live Example</span>
+          </div>
+          <div className="rounded-md bg-gray-900 px-4 py-3">
+            <code className="block text-sm text-emerald-400">
+              https://calendly-alt.vercel.app/<span className="text-sky-400">charlie-fischer</span>/<span className="text-amber-400">rn-initial-phone-screen</span>?<span className="text-purple-400">applicant_id=APL-1001</span>
+            </code>
+          </div>
+          <p className="mt-2 text-xs text-gray-600">
+            Pre-fills candidate <span className="font-semibold">Maria Santos</span>, routes to <span className="font-semibold">Charlie Fischer&apos;s</span> calendar — <span className="font-semibold">RN Initial Phone Screen</span> meeting type.
+          </p>
+        </div>
+
+        {/* API Reference */}
+        <div className="rounded-lg border bg-gray-50 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="rounded bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-700">API Reference</span>
+            <code className="text-xs font-semibold text-gray-700">GET /api/apploi/booking-link</code>
+          </div>
+          <div className="mb-3 overflow-hidden rounded-md border">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b bg-white">
+                  <th className="px-3 py-2 font-semibold text-gray-500">Param</th>
+                  <th className="px-3 py-2 font-semibold text-gray-500">Required</th>
+                  <th className="px-3 py-2 font-semibold text-gray-500">Description</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white text-gray-600">
+                <tr className="border-b">
+                  <td className="px-3 py-2"><code className="text-emerald-700">recruiter_id</code></td>
+                  <td className="px-3 py-2"><span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">Required</span></td>
+                  <td className="px-3 py-2">UUID of the recruiter (host)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="px-3 py-2"><code className="text-emerald-700">applicant_id</code></td>
+                  <td className="px-3 py-2"><span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">Required</span></td>
+                  <td className="px-3 py-2">Apploi applicant ID</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2"><code className="text-emerald-700">meeting_type_id</code></td>
+                  <td className="px-3 py-2"><span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500">Optional</span></td>
+                  <td className="px-3 py-2">UUID of specific meeting type (defaults to first active)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="rounded-md bg-gray-900 px-4 py-3">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">Response</p>
+            <pre className="text-xs leading-relaxed text-gray-300">{`{
+  "url": "https://calendly-alt.vercel.app/charlie-fischer/rn-initial-phone-screen?applicant_id=APL-1001",
+  "recruiter_name": "Charlie Fischer",
+  "meeting_type": "RN Initial Phone Screen"
+}`}</pre>
+          </div>
+          <p className="mt-2 text-[11px] text-gray-400">Auth: <code className="text-gray-500">Authorization: Bearer $CRON_SECRET</code></p>
         </div>
       </div>
 
