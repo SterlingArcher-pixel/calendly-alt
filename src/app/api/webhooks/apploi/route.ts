@@ -81,10 +81,71 @@ export async function POST(req: NextRequest) {
     }
 
     case "application.status_changed": {
-      // Candidate moved to new stage — check if "Ready to Schedule"
-      // Could auto-send booking link via email
       const newStatus = event.data?.new_status;
-      console.log(`[Apploi Webhook] Status changed to: ${newStatus} for applicant: ${event.data?.applicant_id}`);
+      const applicantId = event.data?.applicant_id;
+      console.log(`[Apploi Webhook] Status changed to: ${newStatus} for applicant: ${applicantId}`);
+
+      if (newStatus === "ready_to_schedule") {
+        const recruiterId = event.data?.recruiter_id || event.data?.host_id;
+        const meetingTypeId = event.data?.meeting_type_id;
+
+        if (recruiterId) {
+          // Look up recruiter's booking slug
+          const { data: host } = await supabase
+            .from("hosts")
+            .select("booking_url_slug, name")
+            .eq("id", recruiterId)
+            .single();
+
+          if (host?.booking_url_slug) {
+            // Look up meeting type slug (specific or first active for host)
+            let meetingSlug: string | null = null;
+            if (meetingTypeId) {
+              const { data: mt } = await supabase
+                .from("meeting_types")
+                .select("slug")
+                .eq("id", meetingTypeId)
+                .eq("is_active", true)
+                .single();
+              meetingSlug = mt?.slug || null;
+            }
+            if (!meetingSlug) {
+              const { data: mt } = await supabase
+                .from("meeting_types")
+                .select("slug")
+                .eq("host_id", recruiterId)
+                .eq("is_active", true)
+                .order("sort_order", { ascending: true })
+                .limit(1)
+                .single();
+              meetingSlug = mt?.slug || null;
+            }
+
+            if (meetingSlug) {
+              const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://calendly-alt.vercel.app";
+              const generatedBookingUrl = `${baseUrl}/${host.booking_url_slug}/${meetingSlug}?applicant_id=${applicantId}`;
+
+              console.log(`[Apploi Webhook] Generated booking URL for ${host.name}: ${generatedBookingUrl}`);
+
+              // Store generated URL in webhook payload
+              if (eventId) {
+                await supabase
+                  .from("webhook_messages")
+                  .update({
+                    payload: { ...event, generated_booking_url: generatedBookingUrl },
+                  })
+                  .eq("event_id", eventId);
+              }
+            } else {
+              console.log(`[Apploi Webhook] No active meeting type found for recruiter ${recruiterId}`);
+            }
+          } else {
+            console.log(`[Apploi Webhook] Recruiter ${recruiterId} not found or missing booking_url_slug`);
+          }
+        } else {
+          console.log(`[Apploi Webhook] No recruiter_id/host_id in event data for applicant ${applicantId}`);
+        }
+      }
       break;
     }
 
