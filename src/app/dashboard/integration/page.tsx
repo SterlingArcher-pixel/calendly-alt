@@ -104,6 +104,7 @@ export default function IntegrationPage() {
             <p className="text-sm text-gray-600">Current Calendly integration cannot resolve interview-specific merge fields in Automated Workflows.</p>
           </div>
         </div>
+
         <div className="overflow-hidden rounded-lg border border-amber-200 bg-white">
           <table className="w-full text-left text-sm">
             <thead>
@@ -140,6 +141,7 @@ export default function IntegrationPage() {
             </tbody>
           </table>
         </div>
+
         <div className="mt-3 flex items-center gap-2 rounded-lg bg-amber-100/60 px-4 py-2.5">
           <svg className="h-4 w-4 shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -297,6 +299,7 @@ export default function IntegrationPage() {
             All fields resolve natively
           </div>
         </div>
+
         <div className="overflow-hidden rounded-lg border">
           <table className="w-full text-left text-sm">
             <thead>
@@ -339,6 +342,7 @@ export default function IntegrationPage() {
             </tbody>
           </table>
         </div>
+
         <div className="mt-4 grid grid-cols-3 gap-3">
           <div className="rounded-lg border border-red-100 bg-red-50/50 px-3 py-2 text-center">
             <p className="text-lg font-bold text-red-600">5</p>
@@ -369,59 +373,23 @@ export default function IntegrationPage() {
           <div className="rounded-lg border-2 border-red-200 bg-red-50/30 p-4">
             <h3 className="mb-3 text-sm font-bold text-red-700">Current: Calendly Integration</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-red-400">•</span>
-                Paid Calendly seat per recruiter ($10–16/mo each)
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-red-400">•</span>
-                OAuth V2 migration required (V1 keys incompatible)
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-red-400">•</span>
-                CSops must enable calendar_job_owner flag per customer
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-red-400">•</span>
-                Interview merge fields blank in workflow emails
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-red-400">•</span>
-                Round robin requires manual admin resync
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-red-400">•</span>
-                Direct Calendly URLs bypass Apploi sync entirely
-              </li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 text-red-400">•</span> Paid Calendly seat per recruiter ($10–16/mo each)</li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 text-red-400">•</span> OAuth V2 migration required (V1 keys incompatible)</li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 text-red-400">•</span> CSops must enable calendar_job_owner flag per customer</li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 text-red-400">•</span> Interview merge fields blank in workflow emails</li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 text-red-400">•</span> Round robin requires manual admin resync</li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 text-red-400">•</span> Direct Calendly URLs bypass Apploi sync entirely</li>
             </ul>
           </div>
           <div className="rounded-lg border-2 border-emerald-200 bg-emerald-50/30 p-4">
             <h3 className="mb-3 text-sm font-bold text-emerald-700">Proposed: Apploi Scheduling (Native)</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-emerald-500">•</span>
-                Zero per-seat licensing cost
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-emerald-500">•</span>
-                Single OAuth flow (Google Calendar) — no third-party auth
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-emerald-500">•</span>
-                No feature flags needed — works out of the box
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-emerald-500">•</span>
-                All 13 merge fields resolve in every workflow email
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-emerald-500">•</span>
-                Native reminder engine (24hr + 2hr) with full data
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-emerald-500">•</span>
-                Every booking auto-syncs — no URL leakage possible
-              </li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 text-emerald-500">•</span> Zero per-seat licensing cost</li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 text-emerald-500">•</span> Single OAuth flow (Google Calendar) — no third-party auth</li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 text-emerald-500">•</span> No feature flags needed — works out of the box</li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 text-emerald-500">•</span> All 13 merge fields resolve in every workflow email</li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 text-emerald-500">•</span> Native reminder engine (24hr + 2hr) with full data</li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 text-emerald-500">•</span> Every booking auto-syncs — no URL leakage possible</li>
             </ul>
           </div>
         </div>
@@ -519,7 +487,7 @@ export default function IntegrationPage() {
       </div>
 
       {/* Integration capabilities */}
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="mb-8 grid gap-5 lg:grid-cols-2">
         <div className="rounded-xl border bg-white p-6">
           <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
             <span className="rounded-lg bg-teal-100 p-1.5">
@@ -531,31 +499,24 @@ export default function IntegrationPage() {
           </h3>
           <ul className="mt-4 space-y-3 text-sm text-gray-600">
             <li className="flex items-start gap-2">
-              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
+              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
               Status change to &quot;Interviewing&quot; auto-sends scheduling link via SMS
             </li>
             <li className="flex items-start gap-2">
-              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
+              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
               24hr + 2hr interview reminders reduce no-shows by 40%
             </li>
             <li className="flex items-start gap-2">
-              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
+              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
               3-touch SMS cadence for &quot;unable to contact&quot; candidates
             </li>
             <li className="flex items-start gap-2">
-              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
+              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
               Off-hours applications (73%) get instant engagement via workflows
             </li>
           </ul>
         </div>
+
         <div className="rounded-xl border bg-white p-6">
           <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
             <span className="rounded-lg bg-purple-100 p-1.5">
@@ -567,30 +528,151 @@ export default function IntegrationPage() {
           </h3>
           <ul className="mt-4 space-y-3 text-sm text-gray-600">
             <li className="flex items-start gap-2">
-              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
+              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
               Booking confirms → updates Apploi candidate record with interview details
             </li>
             <li className="flex items-start gap-2">
-              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
+              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
               Cancellation / reschedule → status + notes synced back to ATS
             </li>
             <li className="flex items-start gap-2">
-              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
+              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
               No-show detection → auto-trigger re-engagement workflow
             </li>
             <li className="flex items-start gap-2">
-              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
+              <svg className="mt-0.5 h-4 w-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
               Google Meet link stored in application record for recruiter access
             </li>
           </ul>
+        </div>
+      </div>
+
+      {/* ===== NEW: VIVENTIUM PLATFORM VISION ===== */}
+      <div className="rounded-xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/80 to-violet-50/60 p-6">
+        <div className="mb-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600">
+              <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 0h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Platform Vision: ATS + HCM</h2>
+              <p className="text-sm text-gray-500">How native scheduling bridges Apploi recruiting into Viventium onboarding &amp; payroll.</p>
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-3 py-1 text-xs font-bold text-indigo-700 ring-1 ring-indigo-200">
+            STRATEGIC
+          </span>
+        </div>
+
+        {/* 3-phase flow: Recruit → Schedule → Onboard */}
+        <div className="mb-6 grid grid-cols-3 gap-4">
+          <div className="rounded-lg border-2 border-teal-200 bg-white p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-teal-600 text-xs font-bold text-white">1</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-teal-700">Apploi ATS</span>
+            </div>
+            <p className="text-sm font-semibold text-gray-800">Recruit &amp; Interview</p>
+            <ul className="mt-2 space-y-1.5 text-xs text-gray-500">
+              <li className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-teal-400" />
+                Candidate sourcing &amp; screening
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-teal-400" />
+                Interview scheduling (native)
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-teal-400" />
+                Offer management
+              </li>
+            </ul>
+          </div>
+
+          <div className="rounded-lg border-2 border-indigo-300 bg-white p-4 ring-2 ring-indigo-100">
+            <div className="mb-2 flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">2</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-indigo-700">Scheduling Bridge</span>
+            </div>
+            <p className="text-sm font-semibold text-gray-800">Structured Data Created</p>
+            <ul className="mt-2 space-y-1.5 text-xs text-gray-500">
+              <li className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-indigo-400" />
+                Facility assignment confirmed
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-indigo-400" />
+                Role &amp; interviewer captured
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-indigo-400" />
+                Hire date &amp; start timing
+              </li>
+            </ul>
+          </div>
+
+          <div className="rounded-lg border-2 border-violet-200 bg-white p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">3</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-violet-700">Viventium HCM</span>
+            </div>
+            <p className="text-sm font-semibold text-gray-800">Onboard &amp; Pay</p>
+            <ul className="mt-2 space-y-1.5 text-xs text-gray-500">
+              <li className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-violet-400" />
+                Onboarding packet auto-triggered
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-violet-400" />
+                Orientation scheduling
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-violet-400" />
+                Payroll &amp; benefits setup
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Data that flows */}
+        <div className="mb-5 rounded-lg border border-indigo-200 bg-white p-4">
+          <h3 className="mb-3 text-sm font-bold text-gray-800">Scheduling Data Available to Viventium</h3>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+            {[
+              { label: "Facility name & address", desc: "Maps to Viventium work location" },
+              { label: "Position / role title", desc: "Pre-fills job record in HCM" },
+              { label: "Interviewer (hiring manager)", desc: "Assigns reporting structure" },
+              { label: "Interview completion date", desc: "Triggers onboarding timeline" },
+              { label: "Offer acceptance signal", desc: "Initiates orientation scheduling" },
+              { label: "Candidate contact info", desc: "Pre-populates employee profile" },
+            ].map((item, i) => (
+              <div key={i} className="flex items-start gap-2 py-1.5">
+                <svg className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                <div>
+                  <p className="text-xs font-semibold text-gray-700">{item.label}</p>
+                  <p className="text-[11px] text-gray-400">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Key insight */}
+        <div className="rounded-lg bg-indigo-100/60 px-4 py-3">
+          <div className="flex items-start gap-2">
+            <svg className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+            </svg>
+            <div>
+              <p className="text-xs font-bold text-indigo-800">Why this matters for the combined platform</p>
+              <p className="mt-1 text-xs text-indigo-700">
+                Third-party scheduling tools create a data gap between recruiting and onboarding. Candidate data lives in Calendly, disconnected from both the ATS and HCM. Native scheduling means every data point — facility, role, interviewer, hire date — flows directly from Apploi into Viventium without an integration layer. The multi-facility system already mirrors how healthcare organizations are structured in Viventium.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
